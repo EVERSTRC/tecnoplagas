@@ -5,80 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TecnoPlagas Pro v25.3 - PWA</title>
     
-    <!-- Configuración para instalación en dispositivos móviles -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1e21">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #f4f5f7;
-            color: #333;
-            padding: 15px;
-            padding-bottom: 40px;
-        }
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-        .navbar {
-            background-color: #fff;
-            display: flex;
-            justify-content: flex-start;
-            padding: 5px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow-x: auto;
-        }
-        .navbar button {
-            background: none;
-            border: none;
-            color: #6c757d;
-            font-weight: 700;
-            font-size: 11px;
-            padding: 14px 16px;
-            margin: 0 2px;
-            border-radius: 6px;
-            text-transform: uppercase;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .navbar button.active {
-            background-color: #1a1e21;
-            color: #fff;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .section-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #edf2f7;
-            padding-bottom: 12px;
-        }
-        .line-indicator {
-            width: 5px;
-            height: 22px;
-            margin-right: 10px;
-            border-radius: 3px;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f5f7; color: #333; padding: 15px; padding-bottom: 40px; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .navbar { background-color: #fff; display: flex; justify-content: flex-start; padding: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-radius: 8px; overflow-x: auto; }
+        .navbar button { background: none; border: none; color: #6c757d; font-weight: 700; font-size: 11px; padding: 14px 16px; margin: 0 2px; border-radius: 6px; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+        .navbar button.active { background-color: #1a1e21; color: #fff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .section-header { display: flex; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #edf2f7; padding-bottom: 12px; }
+        .line-indicator { width: 5px; height: 22px; margin-right: 10px; border-radius: 3px; }
         .bg-grey { background-color: #4a5568; }
         .bg-red { background-color: #dc3545; }
         .bg-green { background-color: #28a745; }
@@ -86,21 +30,9 @@
         .bg-info { background-color: #0dcaf0; }
         .bg-blue { background-color: #0d6efd; }
         
-        .section-header h2 {
-            font-size: 15px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 15px;
-        }
-        .col {
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
+        .section-header h2 { font-size: 15px; font-weight: 800; text-transform: uppercase; }
+        .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 15px; }
+        .col { display: flex; flex-direction: column; position: relative; }
         .w-20  { grid-column: span 2; }  
         .w-30  { grid-column: span 4; }  
         .w-33  { grid-column: span 4; }  
@@ -110,59 +42,15 @@
         .w-70  { grid-column: span 10; } 
         .w-100 { grid-column: span 12; } 
 
-        label {
-            font-size: 11px;
-            font-weight: 700;
-            color: #4a5568;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-        }
-        input, select, textarea {
-            padding: 10px 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 15px;
-            color: #2d3748;
-            height: 46px;
-            width: 100%;
-            outline: none;
-        }
+        label { font-size: 11px; font-weight: 700; color: #4a5568; margin-bottom: 6px; text-transform: uppercase; }
+        input, select, textarea { padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 15px; color: #2d3748; height: 46px; width: 100%; outline: none; }
         textarea { height: 80px; resize: none; }
         select[multiple] { height: 120px; font-size: 13px; }
         input:focus, select:focus, textarea:focus { border-color: #3182ce; }
-        input:read-only {
-            background-color: #fffaf0;
-            color: #ff4757;
-            font-weight: bold;
-            border-color: #ff4757;
-            cursor: not-allowed;
-        }
+        input:read-only { background-color: #fffaf0; color: #ff4757; font-weight: bold; border-color: #ff4757; cursor: not-allowed; }
         .input-group { display: flex; gap: 8px; }
-        .btn-action {
-            background-color: #4a5568;
-            color: white;
-            border: none;
-            padding: 0 15px;
-            font-size: 11px;
-            font-weight: 700;
-            border-radius: 6px;
-            cursor: pointer;
-            height: 46px;
-            white-space: nowrap;
-        }
-        .btn-submit {
-            width: 100%;
-            color: white;
-            border: none;
-            padding: 14px;
-            font-size: 14px;
-            font-weight: 800;
-            border-radius: 6px;
-            cursor: pointer;
-            text-transform: uppercase;
-            margin-top: 20px;
-            height: 50px;
-        }
+        .btn-action { background-color: #4a5568; color: white; border: none; padding: 0 15px; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; height: 46px; white-space: nowrap; }
+        .btn-submit { width: 100%; color: white; border: none; padding: 14px; font-size: 14px; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 20px; height: 50px; }
         .btn-grey { background-color: #4a5568; }
         .btn-red { background-color: #dc3545; }
         .btn-green { background-color: #28a745; }
@@ -170,45 +58,27 @@
         .btn-info { background-color: #0dcaf0; color: white; }
         .btn-blue { background-color: #0d6efd; }
         
-        .sub-box {
-            background: #f8fafc;
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 15px;
-            grid-column: span 12;
-            margin-top: 10px;
-        }
-        .table-app {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 13px;
-        }
-        .table-app th, .table-app td {
-            border: 1px solid #cbd5e1;
-            padding: 10px;
-            text-align: left;
-        }
+        .sub-box { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 15px; grid-column: span 12; margin-top: 10px; }
+        .table-app { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        .table-app th, .table-app td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
         .table-app th { background-color: #1a1e21; color: white; }
         
-        .search-results {
-            background: #fff;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 5px;
-            display: none;
-            position: absolute;
-            top: 65px;
-            width: 100%;
-            z-index: 10;
-        }
+        .search-results { background: #fff; border: 2px solid #e2e8f0; border-radius: 6px; max-height: 200px; overflow-y: auto; margin-top: 5px; display: none; position: absolute; top: 65px; width: 100%; z-index: 10; }
         .search-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #edf2f7; }
         .search-item:hover { background-color: #ebf8ff; }
 
         @media (max-width: 850px) { .w-15, .w-20, .w-30, .w-33, .w-40, .w-50, .w-60 { grid-column: span 6; } }
         @media (max-width: 550px) { .w-15, .w-20, .w-30, .w-33, .w-40, .w-50, .w-60 { grid-column: span 12; } }
+
+        /* Estilos ocultos para el Machote de Impresión PDF */
+        #machote-pdf { display: none; background: white; color: black; padding: 40px; font-size: 14px; }
+        .invoice-header { display: flex; justify-content: space-between; border-bottom: 3px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+        .invoice-body { margin-bottom: 40px; display: flex; justify-content: space-between; }
+        .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .invoice-table th { background: #f1f5f9; font-weight: bold; border-bottom: 2px solid #333; padding: 12px; text-align: left; }
+        .invoice-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        .invoice-totals { width: 40%; margin-left: auto; border-top: 2px solid #333; padding-top: 10px; }
+        .invoice-totals div { display: flex; justify-content: space-between; padding: 6px 0; }
     </style>
 </head>
 <body>
@@ -224,7 +94,6 @@
 
     <div class="container">
         
-        <!-- MÓDULO 1: MAESTRO DE CLIENTES -->
         <div id="pantallaClientes" class="tab-content active">
             <div class="section-header">
                 <div class="line-indicator bg-grey"></div>
@@ -252,7 +121,6 @@
             </form>
         </div>
 
-        <!-- MÓDULO 2: CALENDARIO -->
         <div id="pantallaCalendario" class="tab-content">
             <div class="section-header">
                 <div class="line-indicator bg-red"></div>
@@ -273,7 +141,6 @@
             </form>
         </div>
 
-        <!-- MÓDULO 3: CONTROL DE CEBADEROS -->
         <div id="pantallaCebaderos" class="tab-content">
             <div class="section-header">
                 <div class="line-indicator bg-green"></div>
@@ -303,7 +170,6 @@
             </form>
         </div>
 
-        <!-- MÓDULO 4: REGISTRO DE VISITAS -->
         <div id="pantallaVisitas" class="tab-content">
             <div class="section-header">
                 <div class="line-indicator bg-warning"></div>
@@ -325,7 +191,6 @@
             </form>
         </div>
 
-        <!-- MÓDULO 5: FACTURACIÓN -->
         <div id="pantallaFactura" class="tab-content">
             <div class="section-header">
                 <div class="line-indicator bg-info"></div>
@@ -344,11 +209,10 @@
                     <div class="col w-20"><label>IVA (13%)</label><input type="text" id="f_iva" readonly style="background:#f8f9fa; border-color:#cbd5e1; color:#333;"></div>
                     <div class="col w-40"><label style="color:#0d6efd;">TOTAL NETO</label><input type="text" id="f_tot" readonly style="background:#eef2ff; border-color:#0d6efd; color:#0d6efd;"></div>
                 </div>
-                <button type="submit" class="btn-submit btn-info">REGISTRAR FACTURA</button>
+                <button type="submit" class="btn-submit btn-info">REGISTRAR Y GENERAR FACTURA</button>
             </form>
         </div>
 
-        <!-- MÓDULO 6: CONSULTA -->
         <div id="pantallaConsulta" class="tab-content">
             <div class="section-header">
                 <div class="line-indicator bg-blue"></div>
@@ -363,8 +227,69 @@
 
     </div>
 
+    <div id="machote-pdf">
+        <div class="invoice-header">
+            <div>
+                <h1 style="font-size: 26px; font-weight: 800; letter-spacing: -1px;">TECNOPLAGAS PRO</h1>
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">Control Profesional de Plagas y Sanitización</p>
+            </div>
+            <div style="text-align: right;">
+                <h2 style="font-size: 16px; color: #e53e3e;" id="m_con">FAC-0000</h2>
+                <p style="font-size: 12px; color: #666; margin-top: 5px;" id="m_fec">Fecha: --/--/----</p>
+            </div>
+        </div>
+        
+        <div class="invoice-body">
+            <div>
+                <h3 style="font-size: 12px; text-transform: uppercase; color: #718096; margin-bottom: 5px;">Facturado a:</h3>
+                <p style="font-weight: bold; font-size: 16px;" id="m_nom">Nombre del Cliente</p>
+                <p style="font-size: 13px; color: #4a5568; margin-top: 3px;" id="m_id">Cédula: ---</p>
+            </div>
+            <div style="text-align: right; font-size: 12px; color: #718096;">
+                <p>TecnoPlagas S.A.</p>
+                <p>Contacto: soporte@tecnoplagas.com</p>
+                <p>Costa Rica</p>
+            </div>
+        </div>
+
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Cant.</th>
+                    <th style="width: 60%;">Descripción del Servicio</th>
+                    <th style="width: 30%; text-align: right;">Precio Unitario</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="m_can">0</td>
+                    <td id="m_des">--</td>
+                    <td id="m_pre" style="text-align: right;">₡0.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="invoice-totals">
+            <div>
+                <span>Subtotal:</span>
+                <span id="m_sub">₡0.00</span>
+            </div>
+            <div>
+                <span>IVA (13%):</span>
+                <span id="m_iva">₡0.00</span>
+            </div>
+            <div style="font-weight: bold; font-size: 16px; border-top: 1px dashed #333; padding-top: 8px; margin-top: 5px;">
+                <span>Total Neto:</span>
+                <span id="m_tot">₡0.00</span>
+            </div>
+        </div>
+        
+        <div style="margin-top: 100px; text-align: center; font-size: 11px; color: #a0aec0; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+            Gracias por confiar en los servicios profesionales de TecnoPlagas.
+        </div>
+    </div>
+
     <script>
-        // NUEVA URL DE IMPLEMENTACIÓN ASIGNADA POR EL USUARIO
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2vfiyh51puq8CNcSxadj_VcGaBitMmRsyV_p7Juyh2qabdWrLjNR3WFEnNYsbvzWk/exec";
         
         let dbClientes = []; 
@@ -390,7 +315,6 @@
             } catch(e) { console.log("Error de red al cargar base de datos."); }
         }
 
-        // Controlador de navegación por pestañas de la interfaz
         function cambiarPestana(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.navbar button').forEach(l => l.classList.remove('active'));
@@ -481,6 +405,7 @@
             res.style.display = "block";
         }
 
+        // CORRECCIÓN RADICAL: FUNCIÓN ASÍNCRONA ESTABLECIDA CORRECTAMENTE
         async function ejecutarEnvio(pestana, datos, tipoContador) {
             try {
                 await fetch(SCRIPT_URL, { 
@@ -488,50 +413,90 @@
                     mode: 'no-cors', 
                     body: JSON.stringify({ pestana: pestana, datos: datos })
                 });
-                alert("¡Guardado exitoso!");
                 if(tipoContador) {
                     cnt[tipoContador]++;
                     localStorage.setItem('tp_cnt_v25.3', JSON.stringify(cnt));
                 }
-                location.reload();
-            } catch(e) { alert("Error de red."); }
+                return true;
+            } catch(e) { 
+                alert("Error de red al sincronizar."); 
+                return false;
+            }
         }
 
-        document.getElementById('clientForm').addEventListener('submit', function(e) {
+        function imprimirMachotePDF(f) {
+            document.getElementById('m_con').innerText = f.f_con;
+            document.getElementById('m_fec').innerText = "Fecha: " + new Date().toLocaleDateString('es-CR');
+            document.getElementById('m_nom').innerText = f.f_nom;
+            document.getElementById('m_id').innerText = "ID Cédula: " + f.f_id;
+            document.getElementById('m_can').innerText = f.f_can;
+            document.getElementById('m_des').innerText = f.f_des;
+            
+            const precioNum = parseFloat(f.f_pre) || 0;
+            const subNum = precioNum * (parseInt(f.f_can) || 1);
+            
+            document.getElementById('m_pre').innerText = "₡" + precioNum.toFixed(2);
+            document.getElementById('m_sub').innerText = "₡" + subNum.toFixed(2);
+            document.getElementById('m_iva').innerText = "₡" + (parseFloat(f.f_iva) || 0).toFixed(2);
+            document.getElementById('m_tot').innerText = "₡" + (parseFloat(f.f_tot) || 0).toFixed(2);
+
+            const elemento = document.getElementById('machote-pdf');
+            elemento.style.display = 'block';
+
+            const opciones = {
+                margin:       15,
+                filename:     f.f_con + '_' + f.f_nom.replace(/ /g, '_') + '.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, logging: false },
+                jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().from(elemento).set(opciones).save().then(() => {
+                elemento.style.display = 'none';
+                alert("¡Registro exitoso en Sheets y Factura PDF generada!");
+                location.reload();
+            });
+        }
+
+        document.getElementById('clientForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            ejecutarEnvio('Clientes', {
+            const exito = await ejecutarEnvio('Clientes', {
                 c_con: document.getElementById('c_con').value, c_nom: document.getElementById('c_nom').value,
                 c_id: document.getElementById('c_id').value, c_suc: document.getElementById('c_suc').value,
                 c_tel: document.getElementById('c_tel').value, c_mail: document.getElementById('c_mail').value,
                 c_loc: document.getElementById('c_loc').value, c_dir: document.getElementById('c_dir').value,
                 c_gps: document.getElementById('c_gps').value, c_freg: document.getElementById('c_freg').value
             }, 'c');
+            if(exito) { alert("¡Cliente guardado exitosamente!"); location.reload(); }
         });
 
-        document.getElementById('calendarForm').addEventListener('submit', function(e) {
+        document.getElementById('calendarForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            ejecutarEnvio('Calendario', {
+            await ejecutarEnvio('Calendario', {
                 cal_nom: document.getElementById('cal_nom').value, cal_suc: document.getElementById('cal_suc').value,
                 cal_fec: document.getElementById('cal_fec').value, cal_hor: document.getElementById('cal_hor').value,
                 cal_dur: document.getElementById('cal_dur').value, cal_dir: document.getElementById('cal_dir').value,
                 cal_tip: document.getElementById('cal_tip').value, cal_not: document.getElementById('cal_not').value
             }, null);
+            alert("¡Cita Sincronizada con Google Calendar!"); 
+            location.reload();
         });
 
-        document.getElementById('cebaderosForm').addEventListener('submit', function(e) {
+        document.getElementById('cebaderosForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             if(!estTemp.length) return alert("Añada al menos una estación.");
-            ejecutarEnvio('Cebaderos', {
+            const exito = await ejecutarEnvio('Cebaderos', {
                 ceb_con: document.getElementById('ceb_con').value, ceb_nom: document.getElementById('ceb_nom').value,
                 ceb_suc: document.getElementById('ceb_suc').value, ceb_fec: document.getElementById('ceb_fec').value,
                 ceb_hor: document.getElementById('ceb_hor').value, ceb_tip: document.getElementById('ceb_tip').value,
                 ceb_tec: document.getElementById('ceb_tec').value, estaciones: JSON.stringify(estTemp)
             }, 'ceb');
+            if(exito) { alert("¡Reporte de Cebaderos guardado!"); location.reload(); }
         });
 
-        document.getElementById('visitasForm').addEventListener('submit', function(e) {
+        document.getElementById('visitasForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            ejecutarEnvio('Visitas', {
+            const exito = await ejecutarEnvio('Visitas', {
                 v_con: document.getElementById('v_con').value, v_nom: document.getElementById('v_nom').value,
                 v_suc: document.getElementById('v_suc').value, v_fec: document.getElementById('v_fec').value,
                 v_hor: document.getElementById('v_hor').value,
@@ -540,16 +505,22 @@
                 v_met: Array.from(document.getElementById('v_met').selectedOptions).map(o => o.value).join(", "),
                 v_com: document.getElementById('v_com').value
             }, 'v');
+            if(exito) { alert("¡Visita registrada!"); location.reload(); }
         });
 
-        document.getElementById('facturaForm').addEventListener('submit', function(e) {
+        document.getElementById('facturaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            ejecutarEnvio('Facturacion', {
+            const facturaDatos = {
                 f_con: document.getElementById('f_con').value, f_nom: document.getElementById('f_nom').value,
                 f_id: document.getElementById('f_id').value, f_can: document.getElementById('f_can').value,
                 f_des: document.getElementById('f_des').value, f_pre: document.getElementById('f_pre').value,
                 f_iva: document.getElementById('f_iva').value, f_tot: document.getElementById('f_tot').value
-            }, 'f');
+            };
+            
+            const exito = await ejecutarEnvio('Facturacion', facturaDatos, 'f');
+            if(exito) {
+                imprimirMachotePDF(facturaDatos);
+            }
         });
 
         window.onload = () => { 
