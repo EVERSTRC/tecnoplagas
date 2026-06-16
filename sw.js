@@ -1,23 +1,32 @@
-// Service Worker de Red Directa (Evita bloqueos de caché persistentes)
-const CACHE_NAME = 'tecnoplagas-v26';
+/**
+ * ARCHIVO: sw.js (Service Worker)
+ * Propósito: Forzar al navegador a omitir el almacenamiento persistente 
+ * para garantizar la lectura de las respuestas directas de Google Sheets.
+ */
 
-self.addEventListener('install', (e) => {
-  self.skipWaiting();
+const NOMBRE_CACHE = 'tecnoplagas-pwa-v26';
+
+self.addEventListener('install', (event) => {
+  self.skipWaiting(); 
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => {
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((listaCaches) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
+        listaCaches.map((cache) => {
+          if (cache !== NOMBRE_CACHE) {
+            return caches.delete(cache);
+          }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', (e) => {
-  // Estrategia: Ir directamente a internet siempre para evitar congelamiento de datos
-  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+self.addEventListener('fetch', (event) => {
+  // Estrategia Network-Only: Bypass de caché para datos vivos de Google
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request))
+  );
 });
