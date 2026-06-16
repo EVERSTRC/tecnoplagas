@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TecnoPlagas Pro v26 - PWA</title>
+    <title>TecnoPlagas Pro v26</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1e21">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <!-- Librería para generación de PDFs -->
+    <!-- Renderizador de PDFs en Cliente -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -23,7 +23,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .section-header { display: flex; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #edf2f7; padding-bottom: 12px; }
-        .line-indicator { width: 5px; height: 22px; margin-right: 10px; border-radius: 3px; background-color: #4a5568; }
+        .line-indicator { width: 5px; height: 22px; margin-right: 10px; border-radius: 3px; background-color: #1a1e21; }
         .section-header h2 { font-size: 15px; font-weight: 800; text-transform: uppercase; }
         .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 15px; }
         .col { display: flex; flex-direction: column; position: relative; }
@@ -33,15 +33,19 @@
         .w-70 { grid-column: span 9; } 
         .w-100 { grid-column: span 12; } 
         label { font-size: 11px; font-weight: 700; color: #4a5568; margin-bottom: 6px; text-transform: uppercase; }
-        input, select, textarea { padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 15px; color: #2d3748; height: 46px; width: 100%; outline: none; }
-        input:focus { border-color: #3182ce; }
+        input, select { padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 15px; color: #2d3748; height: 46px; width: 100%; outline: none; }
+        input:focus { border-color: #1a1e21; }
+        input[readonly] { background-color: #f7fafc; color: #718096; cursor: not-allowed; }
         .input-group { display: flex; gap: 8px; }
         .btn-action { background-color: #4a5568; color: white; border: none; padding: 0 15px; font-weight: 700; border-radius: 6px; cursor: pointer; height: 46px; }
         .btn-submit { width: 100%; background-color: #1a1e21; color: white; border: none; padding: 14px; font-size: 14px; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 20px; height: 50px; }
         .search-results { background: #fff; border: 2px solid #e2e8f0; border-radius: 6px; max-height: 200px; overflow-y: auto; display: none; position: absolute; top: 65px; width: 100%; z-index: 10; }
         .search-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #edf2f7; }
         .search-item:hover { background-color: #ebf8ff; }
-        #machote-pdf { display: none; background: white; color: black; padding: 40px; }
+        
+        /* Estilos del Documento PDF Imprimible */
+        #machote-pdf { display: none; background: #fff; color: #000; padding: 30px; border: 1px solid #000; font-family: monospace; }
+        .pdf-header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #000; padding-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -49,94 +53,108 @@
     <nav class="navbar">
         <button id="btnTabClientes" class="active" onclick="cambiarPestana('clientes')">REGISTRO CLIENTES</button>
         <button id="btnTabFactura" onclick="cambiarPestana('factura')">FACTURACIÓN</button>
-        <button id="btnTabConsulta" onclick="cambiarPestana('consulta')">CONSULTA</button>
+        <button id="btnTabConsulta" onclick="cambiarPestana('consulta')">CONSULTA CLIENTES</button>
     </nav>
 
     <div class="container">
-        <!-- MODULO: REGISTRO CLIENTES -->
+        <!-- PANTALLA: REGISTRO CLIENTES -->
         <div id="pantallaClientes" class="tab-content active">
             <div class="section-header"><div class="line-indicator"></div><h2>Maestro de Clientes</h2></div>
             <form id="clientForm">
                 <div class="form-grid">
                     <div class="col w-20"><label>Consecutivo</label><input type="text" id="c_con" readonly></div>
-                    <div class="col w-70"><label>Nombre Completo</label><input type="text" id="c_nom" required></div>
-                    <div class="col w-30"><label>Cédula</label><input type="text" id="c_id" required></div>
-                    <div class="col w-30"><label>Sucursal</label><input type="text" id="c_suc"></div>
-                    <div class="col w-30"><label>Teléfono</label><input type="tel" id="c_tel"></div>
-                    <div class="col w-50"><label>Email</label><input type="email" id="c_mail"></div>
-                    <div class="col w-50"><label>Localizar</label><input type="text" id="c_loc"></div>
-                    <div class="col w-100"><label>Dirección</label><input type="text" id="c_dir"></div>
+                    <div class="col w-70"><label>Nombre Completo</label><input type="text" id="c_nom" required autocomplete="off"></div>
+                    <div class="col w-30"><label>Cédula</label><input type="text" id="c_id" required autocomplete="off"></div>
+                    <div class="col w-30"><label>Sucursal</label><input type="text" id="c_suc" autocomplete="off"></div>
+                    <div class="col w-30"><label>Teléfono</label><input type="tel" id="c_tel" autocomplete="off"></div>
+                    <div class="col w-50"><label>Email</label><input type="email" id="c_mail" autocomplete="off"></div>
+                    <div class="col w-50"><label>Localizar</label><input type="text" id="c_loc" autocomplete="off"></div>
+                    <div class="col w-100"><label>Dirección Exacta</label><input type="text" id="c_dir" autocomplete="off"></div>
                     <div class="col w-50"><label>Coordenadas GPS</label>
                         <div class="input-group">
-                            <input type="text" id="c_gps" placeholder="Lat, Lon">
-                            <button type="button" class="btn-action" onclick="obtenerUbicacion('c_gps')">📍 GPS</button>
+                            <input type="text" id="c_gps" placeholder="Esperando señal..." readonly>
+                            <button type="button" class="btn-action" onclick="obtenerUbicacion('c_gps')">📍 CAPTURAR</button>
                         </div>
                     </div>
-                    <div class="col w-50"><label>Fecha Registro</label><input type="date" id="c_freg"></div>
+                    <div class="col w-50"><label>Fecha Registro</label><input type="date" id="c_freg" required></div>
                 </div>
-                <button type="submit" class="btn-submit">Guardar Cliente</button>
+                <button type="submit" class="btn-submit">Guardar Cliente Remoto</button>
             </form>
         </div>
 
-        <!-- MODULO: FACTURACION -->
+        <!-- PANTALLA: FACTURACION -->
         <div id="pantallaFactura" class="tab-content">
-            <div class="section-header"><div class="line-indicator"></div><h2>Generar Factura</h2></div>
+            <div class="section-header"><div class="line-indicator"></div><h2>Generar Factura Digital</h2></div>
             <form id="facturaForm">
                 <div class="form-grid">
                     <div class="col w-30"><label>Factura #</label><input type="text" id="f_con" readonly></div>
                     <div class="col w-70"><label>Cliente</label><select id="f_nom" class="select-clientes" onchange="autoFillFact()" required></select></div>
-                    <div class="col w-30"><label>Cédula</label><input type="text" id="f_id" readonly></div>
-                    <div class="col w-20"><label>Cantidad</label><input type="number" id="f_can" value="1" oninput="calcTotal()" required></div>
-                    <div class="col w-70"><label>Descripción del servicio</label><input type="text" id="f_des" required></div>
-                    <div class="col w-30"><label>Precio Unitario</label><input type="number" id="f_pre" oninput="calcTotal()" required></div>
+                    <div class="col w-30"><label>Cédula Identidad</label><input type="text" id="f_id" readonly></div>
+                    <div class="col w-20"><label>Cantidad</label><input type="number" id="f_can" value="1" oninput="calcTotal()" required min="1"></div>
+                    <div class="col w-70"><label>Descripción del Servicio</label><input type="text" id="f_des" required autocomplete="off"></div>
+                    <div class="col w-30"><label>Precio Unitario (CRC)</label><input type="number" id="f_pre" oninput="calcTotal()" required min="0" step="0.01"></div>
                     <div class="col w-30"><label>IVA (13%)</label><input type="text" id="f_iva" readonly></div>
-                    <div class="col w-60"><label>Total Neto</label><input type="text" id="f_tot" readonly style="font-weight: bold; color: #0d6efd;"></div>
+                    <div class="col w-60"><label>Total Neto</label><input type="text" id="f_tot" readonly style="font-weight: 800; color: #1a1e21; background-color: #edf2f7;"></div>
                 </div>
-                <button type="submit" class="btn-submit">Procesar y Descargar PDF</button>
+                <button type="submit" class="btn-submit">Sincronizar y Descargar PDF</button>
             </form>
         </div>
 
-        <!-- MODULO: CONSULTA -->
+        <!-- PANTALLA: CONSULTA -->
         <div id="pantallaConsulta" class="tab-content">
-            <div class="section-header"><div class="line-indicator"></div><h2>Buscador de Clientes</h2></div>
+            <div class="section-header"><div class="line-indicator"></div><h2>Buscador de Clientes en Base de Datos</h2></div>
             <div class="col w-100">
-                <label>Escribe el nombre del cliente</label>
-                <input type="text" id="inputBuscador" placeholder="Buscar..." onkeyup="filtrarClientes()">
+                <label>Filtrar por coincidencia de nombre</label>
+                <input type="text" id="inputBuscador" placeholder="Escriba el nombre del cliente..." onkeyup="filtrarClientes()" autocomplete="off">
                 <div id="resultadosBusqueda" class="search-results"></div>
             </div>
         </div>
     </div>
 
-    <!-- Machote PDF oculto -->
+    <!-- Contenedor del Machote PDF (Oculto dinámicamente) -->
     <div id="machote-pdf">
-        <h1 id="m_title">DOCUMENTO DE FACTURACIÓN</h1>
-        <p id="m_con"></p>
-        <p id="m_nom"></p>
-        <p id="m_det"></p>
-        <h3 id="m_tot"></h3>
+        <div class="pdf-header">
+            <h2>TECNOPLAGAS PRO S.A.</h2>
+            <p>Control Profesional de Vectores y Sanitización</p>
+            <p id="pdf_fac_num" style="font-weight: bold; margin-top: 5px;"></p>
+        </div>
+        <p><strong>Fecha Emisión:</strong> <span id="pdf_fecha"></span></p>
+        <p><strong>Cliente:</strong> <span id="pdf_cliente"></span></p>
+        <p><strong>Identificación:</strong> <span id="pdf_cedula"></span></p>
+        <br>
+        <p>--------------------------------------------------</p>
+        <p><strong>Detalle del Servicio:</strong></p>
+        <p id="pdf_detalle"></p>
+        <p>--------------------------------------------------</p>
+        <h3 id="pdf_total" style="text-align: right; margin-top: 15px;"></h3>
     </div>
 
     <script>
-        // REEMPLAZA ESTA URL CON TU LINK GENERADO POR GOOGLE APPS SCRIPT
-        const SCRIPT_URL = "TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUÍ";
+        // URL Integrada proporcionada por el usuario
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2vfiyh51puq8CNcSxadj_VcGaBitMmRsyV_p7Juyh2qabdWrLjNR3WFEnNYsbvzWk/exec";
         
         let dbClientes = [];
-        let cnt = JSON.parse(localStorage.getItem('tp_cnt_v26')) || { c:1, f:1 };
+        let cnt = JSON.parse(localStorage.getItem('tp_cnt_v26')) || { c: 1, f: 1 };
 
-        // Registro de Service Worker para PWA
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.error('Error SW:', err));
+            });
         }
 
         async function cargarBaseDatos() {
             try {
-                const r = await fetch(SCRIPT_URL);
-                const res = await r.json();
-                if(res.status === "success") {
-                    dbClientes = res.clientes;
+                const response = await fetch(SCRIPT_URL);
+                const resultado = await response.json();
+                if(resultado.status === "success") {
+                    dbClientes = resultado.clientes;
                     actualizarDesplegables();
+                } else {
+                    alert("Error devuelto por el servidor de Google Sheets.");
                 }
-            } catch(e) { console.error("Error cargando base de datos remota."); }
+            } catch(e) {
+                console.error("Modo Offline o error de red detectado al leer Google Sheets.");
+            }
         }
 
         function actualizarDesplegables() {
@@ -160,94 +178,122 @@
             document.getElementById('f_con').value = "FAC-" + String(cnt.f).padStart(4,'0');
         }
 
-        function obtenerUbicacion(id) {
-            if(!navigator.geolocation) return alert("GPS no disponible.");
-            navigator.geolocation.getCurrentPosition(p => {
-                document.getElementById(id).value = p.coords.latitude.toFixed(6) + ", " + p.coords.longitude.toFixed(6);
-            }, () => alert("Encienda el GPS de la tablet."));
+        function obtenerUbicacion(idInput) {
+            if(!navigator.geolocation) return alert("Este dispositivo no cuenta con hardware GPS compatible.");
+            document.getElementById(idInput).value = "Buscando satélites...";
+            navigator.geolocation.getCurrentPosition(position => {
+                document.getElementById(idInput).value = position.coords.latitude.toFixed(6) + ", " + position.coords.longitude.toFixed(6);
+            }, () => {
+                document.getElementById(idInput).value = "";
+                alert("Imposible obtener coordenadas. Verifique los permisos de ubicación de la tablet.");
+            }, { enableHighAccuracy: true, timeout: 7000 });
         }
 
         function autoFillFact() {
-            const client = dbClientes.find(x => x.nombre === document.getElementById('f_nom').value);
-            if(client) document.getElementById('f_id').value = client.cedula;
+            const clienteSeleccionado = dbClientes.find(x => x.nombre === document.getElementById('f_nom').value);
+            document.getElementById('f_id').value = clienteSeleccionado ? clienteSeleccionado.cedula : "";
         }
 
         function calcTotal() {
-            const sub = (parseFloat(document.getElementById('f_pre').value) || 0) * (parseInt(document.getElementById('f_can').value) || 0);
-            document.getElementById('f_iva').value = (sub * 0.13).toFixed(2);
-            document.getElementById('f_tot').value = (sub * 1.13).toFixed(2);
+            const cantidad = parseInt(document.getElementById('f_can').value) || 0;
+            const precio = parseFloat(document.getElementById('f_pre').value) || 0;
+            const subtotal = cantidad * precio;
+            const iva = subtotal * 0.13;
+            const total = subtotal + iva;
+            
+            document.getElementById('f_iva').value = iva.toFixed(2);
+            document.getElementById('f_tot').value = total.toFixed(2);
         }
 
         function filtrarClientes() {
-            const query = document.getElementById('inputBuscador').value.toLowerCase();
-            const res = document.getElementById('resultadosBusqueda');
-            res.innerHTML = "";
-            if(!query.trim()) { res.style.display = "none"; return; }
+            const busqueda = document.getElementById('inputBuscador').value.toLowerCase();
+            const contenedorResultados = document.getElementById('resultadosBusqueda');
+            contenedorResultados.innerHTML = "";
+            
+            if(!busqueda.trim()) { contenedorResultados.style.display = "none"; return; }
             
             dbClientes.forEach(c => {
-                if(c.nombre.toLowerCase().includes(query)) {
-                    const div = document.createElement('div');
-                    div.className = 'search-item';
-                    div.innerText = c.nombre + " (" + c.cedula + ")";
-                    div.onclick = () => { document.getElementById('inputBuscador').value = c.nombre; res.style.display="none"; };
-                    res.appendChild(div);
+                if(c.nombre.toLowerCase().includes(busqueda)) {
+                    const item = document.createElement('div');
+                    item.className = 'search-item';
+                    item.innerText = `${c.nombre} [Ced: ${c.cedula}] - Sucursal: ${c.sucursal || 'Central'}`;
+                    item.onclick = () => {
+                        document.getElementById('inputBuscador').value = c.nombre;
+                        contenedorResultados.style.display = "none";
+                    };
+                    contenedorResultados.appendChild(item);
                 }
             });
-            res.style.display = "block";
+            contenedorResultados.style.display = "block";
         }
 
-        async function enviarFormulario(pestana, datos, campoContador) {
+        // CONTROL DE ENVÍO OPTIMIZADO ASÍNCRONO
+        async function enviarA_GoogleSheets(pestana, paqueteDatos, claveContador) {
             try {
-                // Forzamos modo cors mediante solicitudes tradicionales limpias si el API remoto lo requiere
+                // El uso de no-cors previene los bloqueos preventivos del navegador
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    body: JSON.stringify({ pestana: pestana, datos: datos })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pestana: pestana, datos: paqueteDatos })
                 });
-                if(campoContador) {
-                    cnt[campoContador]++;
+                
+                if(claveContador) {
+                    cnt[claveContador]++;
                     localStorage.setItem('tp_cnt_v26', JSON.stringify(cnt));
                 }
                 return true;
-            } catch(e) {
-                alert("Error crítico de conexión.");
+            } catch(error) {
+                alert("Fallo de red al intentar alcanzar la pasarela de Google: " + error.toString());
                 return false;
             }
         }
 
         document.getElementById('clientForm').addEventListener('submit', async function(e){
             e.preventDefault();
-            const datos = {
+            const dataset = {
                 c_con: document.getElementById('c_con').value, c_nom: document.getElementById('c_nom').value,
                 c_id: document.getElementById('c_id').value, c_suc: document.getElementById('c_suc').value,
                 c_tel: document.getElementById('c_tel').value, c_mail: document.getElementById('c_mail').value,
                 c_loc: document.getElementById('c_loc').value, c_dir: document.getElementById('c_dir').value,
                 c_gps: document.getElementById('c_gps').value, c_freg: document.getElementById('c_freg').value
             };
-            const listo = await enviarFormulario('Clientes', datos, 'c');
-            if(listo) { alert("¡Cliente sincronizado con éxito!"); location.reload(); }
+            
+            const completado = await enviarA_GoogleSheets('Clientes', dataset, 'c');
+            if(completado) {
+                alert("¡Fila enviada a Google Sheets! Actualizando tablas...");
+                location.reload();
+            }
         });
 
         document.getElementById('facturaForm').addEventListener('submit', async function(e){
             e.preventDefault();
-            const datos = {
+            const dataset = {
                 f_con: document.getElementById('f_con').value, f_nom: document.getElementById('f_nom').value,
                 f_id: document.getElementById('f_id').value, f_can: document.getElementById('f_can').value,
                 f_des: document.getElementById('f_des').value, f_pre: document.getElementById('f_pre').value,
                 f_iva: document.getElementById('f_iva').value, f_tot: document.getElementById('f_tot').value
             };
-            const listo = await enviarFormulario('Facturacion', datos, 'f');
-            if(listo) {
-                document.getElementById('m_con').innerText = "Código: " + datos.f_con;
-                document.getElementById('m_nom').innerText = "Señor(a): " + datos.f_nom;
-                document.getElementById('m_det').innerText = datos.f_can + "x " + datos.f_des;
-                document.getElementById('m_tot').innerText = "Total Pagado: ₡" + datos.f_tot;
+            
+            const completado = await enviarA_GoogleSheets('Facturacion', dataset, 'f');
+            if(completado) {
+                document.getElementById('pdf_fac_num').innerText = "NÚMERO COMPROBANTE: " + dataset.f_con;
+                document.getElementById('pdf_fecha').innerText = new Date().toLocaleDateString('es-CR');
+                document.getElementById('pdf_cliente').innerText = dataset.f_nom;
+                document.getElementById('pdf_cedula').innerText = dataset.f_id;
+                document.getElementById('pdf_detalle').innerText = `${dataset.f_can} unidad(es) - ${dataset.f_des} (P. Unitario: ₡${dataset.f_pre})`;
+                document.getElementById('pdf_total').innerText = "TOTAL NETO: ₡" + dataset.f_tot;
                 
-                const element = document.getElementById('machote-pdf');
-                element.style.display = 'block';
-                html2pdf().from(element).save().then(() => {
-                    element.style.display = 'none';
-                    alert("Factura generada y guardada.");
+                const framePdf = document.getElementById('machote-pdf');
+                framePdf.style.display = 'block';
+                
+                html2pdf().from(framePdf).set({
+                    margin: 15,
+                    filename: dataset.f_con + '.pdf',
+                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                }).save().then(() => {
+                    framePdf.style.display = 'none';
+                    alert("Registro completado y PDF descargado de manera exitosa.");
                     location.reload();
                 });
             }
