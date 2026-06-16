@@ -1,31 +1,21 @@
-const CACHE_NAME = 'tecnoplagas-v1';
-const assets = ['index.html', 'manifest.json'];
+const CACHE_NAME = 'tecnoplags-cache-v2';
+const assets = [
+  'index.html',
+  'manifest.json'
+];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
+self.addEventListener('install', e => {
+  e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       return cache.addAll(assets);
     })
   );
 });
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      );
-    })
-  );
-});
-
-self.addEventListener('fetch', event => {
-  if (event.request.url.includes('script.google.com')) {
-    return;
-  }
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      return cachedResponse || fetch(event.request);
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(cachedResponse => {
+      return cachedResponse || fetch(e.request);
     })
   );
 });
