@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TecnoPlagas Pro v25.3 - Tablet GPS</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1e21">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        /* Estilos Base y Arquitectura Responsiva */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f4f5f7;
+            color: #333;
+            padding: 15px;
+            padding-bottom: 40px;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .navbar {
+            background-color: #fff;
+            display: flex;
+            justify-content: flex-start;
+            padding: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .navbar button {
+            background: none;
+            border: none;
+            color: #6c757d;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 14px 20px;
+            margin: 0 2px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .navbar button.active {
+            background-color: #1a1e21;
+            color: #fff;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 12px;
+        }
+        .line-indicator {
+            width: 5px;
+            height: 22px;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+        .bg-green { background-color: #28a745; }
+        .bg-red { background-color: #dc3545; }
+        .bg-blue { background-color: #0d6efd; }
+        
+        .section-header h2 {
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* Sistema elástico para Tablet y Móvil */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 15px;
+        }
+        .col {
+            display: flex;
+            flex-direction: column;
+        }
+        .w-20  { grid-column: span 3; }  
+        .w-30  { grid-column: span 4; }  
+        .w-33  { grid-column: span 4; }  
+        .w-40  { grid-column: span 5; }  
+        .w-60  { grid-column: span 7; }  
+        .w-100 { grid-column: span 12; } 
+
+        label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+        input, select {
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 15px;
+            color: #2d3748;
+            height: 46px;
+            width: 100%;
+            outline: none;
+        }
+        input:focus, select:focus {
+            border-color: #3182ce;
+        }
+        input:read-only {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+        .input-group {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-action {
+            background-color: #4a5568;
+            color: white;
+            border: none;
+            padding: 0 15px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            height: 46px;
+            white-space: nowrap;
+        }
+        .btn-submit {
+            width: 100%;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 800;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 20px;
+            height: 50px;
+        }
+        .btn-blue { background-color: #0d6efd; }
+        .btn-red { background-color: #dc3545; }
+        .btn-submit:disabled, .btn-action:disabled {
+            background-color: #a0aec0 !important;
+            cursor: not-allowed;
+        }
+        .search-results {
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 5px;
+            display: none;
+            position: absolute;
+            width: 100%;
+            z-index: 10;
+        }
+        .search-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .search-item:hover {
+            background-color: #ebf8ff;
+        }
+        .info-card {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        @media (max-width: 850px) {
+            .w-20, .w-30, .w-33, .w-40, .w-60 { grid-column: span 6; }
+        }
+        @media (max-width: 550px) {
+            .w-20, .w-30, .w-33, .w-40, .w-60 { grid-column: span 12; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <button id="btnTabClientes" class="active" onclick="cambiarPestana('clientes')">CLIENTES</button>
+        <button id="btnTabCalendario" onclick="cambiarPestana('calendario')">CALENDARIO</button>
+        <button id="btnTab聯sulta" onclick="cambiarPestana('consulta')">CONSULTA</button>
+    </nav>
+
+    <div class="container">
+        
+        <div id="pantallaClientes" class="tab-content active">
+            <div class="section-header">
+                <div class="line-indicator bg-green"></div>
+                <h2>MAESTRO DE CLIENTES</h2>
+            </div>
+            <form id="clientForm">
+                <div class="form-grid">
+                    <div class="col w-20">
+                        <label>CONSECUTIVO</label>
+                        <input type="text" id="consecutivo" value="CL-0001" readonly>
+                    </div>
+                    <div class="col w-60">
+                        <label>NOMBRE COMPLETO</label>
+                        <input type="text" id="nombre" required autocomplete="off">
+                    </div>
+                    <div class="col w-20">
+                        <label>ID (CÉDULA)</label>
+                        <input type="text" id="cedula" required autocomplete="off">
+                    </div>
+                    <div class="col w-33">
+                        <label>SUCURSAL</label>
+                        <input type="text" id="sucursal" autocomplete="off">
+                    </div>
+                    <div class="col w-33">
+                        <label>TELÉFONO</label>
+                        <input type="tel" id="telefono" autocomplete="off">
+                    </div>
+                    <div class="col w-33">
+                        <label>EMAIL</label>
+                        <input type="email" id="email" autocomplete="off">
+                    </div>
+                    <div class="col w-20">
+                        <label>LOCALIZAR</label>
+                        <input type="text" id="localizar" autocomplete="off">
+                    </div>
+                    <div class="col w-40">
+                        <label>DIRECCIÓN</label>
+                        <input type="text" id="direccion" autocomplete="off">
+                    </div>
+                    <div class="col w-40">
+                        <label>GPS</label>
+                        <div class="input-group">
+                            <input type="text" id="gps" placeholder="Lat, Lon" autocomplete="off">
+                            <button type="button" class="btn-action" onclick="obtenerUbicacionActual('gps')">📍 GEOLOCALIZAR</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="btnGuardarCliente" class="btn-submit btn-blue">GUARDAR CLIENTE</button>
+            </form>
+        </div>
+
+        <div id="pantallaCalendario" class="tab-content">
+            <div class="section-header">
+                <div class="line-indicator bg-red"></div>
+                <h2>AGENDAR CITA EN GOOGLE CALENDAR</h2>
+            </div>
+            <form id="calendarForm">
+                <div class="form-grid">
+                    <div class="col w-60">
+                        <label>SELECCIONAR CLIENTE</label>
+                        <select id="selectCliente" required onchange="autoCompletarCliente()">
+                            <option value="">-- Seleccionar --</option>
+                        </select>
+                    </div>
+                    <div class="col w-40">
+                        <label>SUCURSAL</label>
+                        <input type="text" id="calSucursal" readonly>
+                    </div>
+                    <div class="col w-33">
+                        <label>FECHA DE CITA</label>
+                        <input type="date" id="calFecha" required>
+                    </div>
+                    <div class="col w-33">
+                        <label>HORA DE INICIO</label>
+                        <input type="time" id="calHora" required>
+                    </div>
+                    <div class="col w-33">
+                        <label>DURACIÓN (HORAS)</label>
+                        <input type="number" id="calDuracion" value="1" min="0.5" step="0.5" required>
+                    </div>
+                    <div class="col w-100">
+                        <label>DIRECCIÓN (UBICACIÓN EN MAPA)</label>
+                        <input type="text" id="calDireccion" autocomplete="off">
+                    </div>
+                </div>
+                <button type="submit" id="btnSincronizar" class="btn-submit btn-red">SINCRONIZAR CON GOOGLE CALENDAR</button>
+            </form>
+        </div>
+
+        <div id="pantallaConsulta" class="tab-content">
+            <div class="section-header">
+                <div class="line-indicator bg-blue"></div>
+                <h2>CONSULTA Y EDICIÓN DE CLIENTES</h2>
+            </div>
+            <div class="col w-100" style="position: relative; margin-bottom: 25px;">
+                <label>BUSCAR POR NOMBRE O CÉDULA</label>
+                <input type="text" id="inputBuscador" placeholder="Escribe para buscar..." onkeyup="filtrarClientes()" autocomplete="off">
+                <div id="resultadosBusqueda" class="search-results"></div>
+            </div>
+
+            <form id="editClientForm" class="info-card">
+                <div class="form-grid">
+                    <div class="col w-20">
+                        <label>Consecutivo</label>
+                        <input type="text" id="editConsecutivo" readonly>
+                    </div>
+                    <div class="col w-60">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="editNombre" required autocomplete="off">
+                    </div>
+                    <div class="col w-20">
+                        <label>ID / Cédula</label>
+                        <input type="text" id="editCedula" required autocomplete="off">
+                    </div>
+                    <div class="col w-33">
+                        <label>Sucursal</label>
+                        <input type="text" id="editSucursal" autocomplete="off">
+                    </div>
+                    <div class="col w-33">
+                        <label>Teléfono</label>
+                        <input type="tel" id="editTelefono" autocomplete="off">
+                    </div>
+                    <div class="col w-33">
+                        <label>Email</label>
+                        <input type="email" id="editEmail" autocomplete="off">
+                    </div>
+                    <div class="col w-40">
+                        <label>GPS</label>
+                        <div class="input-group">
+                            <input type="text" id="editGps" placeholder="Lat, Lon" autocomplete="off">
+                            <button type="button" class="btn-action" onclick="obtenerUbicacionActual('editGps')">📍 ACTUALIZAR GPS</button>
+                        </div>
+                    </div>
+                    <div class="col w-60">
+                        <label>Dirección Completa</label>
+                        <input type="text" id="editDireccion" autocomplete="off">
+                    </div>
+                </div>
+                <button type="submit" id="btnActualizarCliente" class="btn-submit btn-blue">ACTUALIZAR DATOS EN SHEETS</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby2vfiyh51puq8CNcSxadj_VcGaBitMmRsyV_p7Juyh2qabdWrLjNR3WFEnNYsbvzWk/exec";
+        let listaGlobalClientes = [];
+
+        // Registro Automático del Motor PWA en la Tablet
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA lista'))
+                    .catch(err => console.error('PWA Error', err));
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            obtenerBaseClientesSilencioso();
+        });
+
+        // CAPTURA HARDWARE GPS NATIVO
+        function obtenerUbicacionActual(idDestino) {
+            const inputGps = document.getElementById(idDestino);
+            if (!navigator.geolocation) {
+                alert("Tu tablet o navegador no soporta geolocalización.");
+                return;
+            }
+            inputGps.value = "Localizando satélites...";
+            
+            const opciones = { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 };
+
+            navigator.geolocation.getCurrentPosition(
+                (posicion) => {
+                    inputGps.value = `${posicion.coords.latitude.toFixed(6)}, ${posicion.coords.longitude.toFixed(6)}`;
+                },
+                (error) => {
+                    inputGps.value = "";
+                    alert("Error GPS: Verifica que estés abriendo el enlace HTTPS seguro de GitHub y que activaras la ubicación en la tablet.");
+                }, 
+                opciones
+            );
+        }
+
+        function cambiarPestana(pestana) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.navbar button').forEach(el => el.classList.remove('active'));
+            
+            if (pestana === 'clientes') {
+                document.getElementById('pantallaClientes').classList.add('active');
+                document.getElementById('btnTabClientes').classList.add('active');
+            } else if (pestana === 'calendario') {
+                document.getElementById('pantallaCalendario').classList.add('active');
+                document.getElementById('btnTabCalendario').classList.add('active');
+                cargarClientesDesdeSheets();
+            } else if (pestana === 'consulta') {
+                document.getElementById('pantallaConsulta').classList.add('active');
+                document.getElementById('btnTabConsulta').classList.add('active');
+            }
+        }
+
+        function obtenerBaseClientesSilencioso() {
+            fetch(WEB_APP_URL).then(res => res.json()).then(res => {
+                if(res.status === "success") listaGlobalClientes = res.clientes;
+            }).catch(err => console.error(err));
+        }
+
+        function cargarClientesDesdeSheets() {
+            const select = document.getElementById('selectCliente');
+            select.innerHTML = '<option value="">Cargando base de datos...</option>';
+            fetch(WEB_APP_URL).then(res => res.json()).then(res => {
+                if(res.status === "success") {
+                    listaGlobalClientes = res.clientes;
+                    select.innerHTML = '<option value="">-- Seleccionar --</option>';
+                    res.clientes.forEach((cli, index) => {
+                        let opt = document.createElement('option');
+                        opt.value = index;
+                        opt.innerText = `${cli.consecutivo} - ${cli.nombre}`;
+                        select.appendChild(opt);
+                    });
+                }
+            });
+        }
+
+        function autoCompletarCliente() {
+            const val = document.getElementById('selectCliente').value;
+            if(val !== "") {
+                const clienteSel = listaGlobalClientes[val];
+                document.getElementById('calSucursal').value = clienteSel.sucursal || '';
+                document.getElementById('calDireccion').value = clienteSel.direccion || '';
+            }
+        }
+
+        function filtrarClientes() {
+            const query = document.getElementById('inputBuscador').value.toLowerCase();
+            const contenedorResultados = document.getElementById('resultadosBusqueda');
+            contenedorResultados.innerHTML = "";
+
+            if (query.trim() === "") {
+                contenedorResultados.style.display = "none";
+                return;
+            }
+
+            listaGlobalClientes.forEach((cliente, index) => {
+                if ((cliente.nombre || "").toLowerCase().includes(query) || (cliente.cedula || "").toLowerCase().includes(query)) {
+                    const item = document.createElement('div');
+                    item.className = 'search-item';
+                    item.innerText = `${cliente.consecutivo} - ${cliente.nombre}`;
+                    item.onclick = () => verDetalleCliente(index);
+                    contenedorResultados.appendChild(item);
+                }
+            });
+            contenedorResultados.style.display = "block";
+        }
+
+        function verDetalleCliente(index) {
+            const cliente = listaGlobalClientes[index];
+            document.getElementById('resultadosBusqueda').style.display = "none";
+            document.getElementById('inputBuscador').value = cliente.nombre;
+
+            document.getElementById('editConsecutivo').value = cliente.consecutivo || '';
+            document.getElementById('editNombre').value = cliente.nombre || '';
+            document.getElementById('editCedula').value = cliente.cedula || '';
+            document.getElementById('editSucursal').value = cliente.sucursal || '';
+            document.getElementById('editTelefono').value = cliente.telefono || '';
+            document.getElementById('editEmail').value = cliente.email || '';
+            document.getElementById('editGps').value = cliente.gps || '';
+            document.getElementById('editDireccion').value = cliente.direccion || '';
+
+            document.getElementById('editClientForm').style.display = "block";
+        }
+
+        // GUARDAR NUEVO
+        document.getElementById('clientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnGuardarCliente');
+            btn.disabled = true;
+            btn.innerText = "GUARDANDO...";
+
+            const datos = {
+                accion: "guardar_cliente",
+                consecutivo: document.getElementById('consecutivo').value,
+                nombre: document.getElementById('nombre').value,
+                cedula: document.getElementById('cedula').value,
+                sucursal: document.getElementById('sucursal').value,
+                telefono: document.getElementById('telefono').value,
+                email: document.getElementById('email').value,
+                localizar: document.getElementById('localizar').value,
+                direccion: document.getElementById('direccion').value,
+                gps: document.getElementById('gps').value,
+                fecha: new Date().toISOString().split('T')[0]
+            };
+
+            fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) }).then(() => {
+                alert('¡Cliente registrado con éxito!');
+                document.getElementById('clientForm').reset();
+                obtenerBaseClientesSilencioso();
+            }).finally(() => {
+                btn.disabled = false;
+                btn.innerText = "GUARDAR CLIENTE";
+            });
+        });
+
+        // ACTUALIZAR EXISTENTE
+        document.getElementById('editClientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnActualizarCliente');
+            btn.disabled = true;
+            btn.innerText = "ACTUALIZANDO...";
+
+            const datosModificados = {
+                accion: "actualizar_cliente",
+                consecutivo: document.getElementById('editConsecutivo').value,
+                nombre: document.getElementById('editNombre').value,
+                cedula: document.getElementById('editCedula').value,
+                sucursal: document.getElementById('editSucursal').value,
+                telefono: document.getElementById('editTelefono').value,
+                email: document.getElementById('editEmail').value,
+                direccion: document.getElementById('editDireccion').value,
+                gps: document.getElementById('editGps').value
+            };
+
+            fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datosModificados) }).then(() => {
+                alert('¡Datos actualizados en Sheets!');
+                document.getElementById('editClientForm').style.display = "none";
+                document.getElementById('inputBuscador').value = "";
+                obtenerBaseClientesSilencioso();
+            }).finally(() => {
+                btn.disabled = false;
+                btn.innerText = "ACTUALIZAR DATOS EN SHEETS";
+            });
+        });
+    </script>
+</body>
+</html>
