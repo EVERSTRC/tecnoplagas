@@ -1,5 +1,5 @@
 {
-  "name": "TecnoPlagas Pro",
+  "name": "TecnoPlagas Pro Sistema v26",
   "short_name": "TecnoPlagas",
   "start_url": "index.html",
   "display": "standalone",
@@ -9,7 +9,7 @@
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2933/2933803.png",
-      "sizes": "512xl512",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
