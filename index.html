@@ -3,382 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TecnoPlagas Pro v25.3 - PWA</title>
+    <title>TecnoPlagas Pro v26 - PWA</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1e21">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+    <!-- Librería para generación de PDFs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f5f7; color: #333; padding: 15px; padding-bottom: 40px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f4f5f7; color: #333; padding: 15px; }
         .container { width: 100%; max-width: 1200px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .navbar { background-color: #fff; display: flex; justify-content: flex-start; padding: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-radius: 8px; overflow-x: auto; }
-        .navbar button { background: none; border: none; color: #6c757d; font-weight: 700; font-size: 11px; padding: 14px 16px; margin: 0 2px; border-radius: 6px; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+        .navbar { background-color: #fff; display: flex; padding: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border-radius: 8px; overflow-x: auto; }
+        .navbar button { background: none; border: none; color: #6c757d; font-weight: 700; font-size: 11px; padding: 14px 16px; border-radius: 6px; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
         .navbar button.active { background-color: #1a1e21; color: #fff; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .section-header { display: flex; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #edf2f7; padding-bottom: 12px; }
-        .line-indicator { width: 5px; height: 22px; margin-right: 10px; border-radius: 3px; }
-        .bg-grey { background-color: #4a5568; }
-        .bg-red { background-color: #dc3545; }
-        .bg-green { background-color: #28a745; }
-        .bg-warning { background-color: #ffc107; }
-        .bg-info { background-color: #0dcaf0; }
-        .bg-blue { background-color: #0d6efd; }
-        
+        .line-indicator { width: 5px; height: 22px; margin-right: 10px; border-radius: 3px; background-color: #4a5568; }
         .section-header h2 { font-size: 15px; font-weight: 800; text-transform: uppercase; }
         .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 15px; }
         .col { display: flex; flex-direction: column; position: relative; }
-        .w-20  { grid-column: span 2; }  
-        .w-30  { grid-column: span 4; }  
-        .w-33  { grid-column: span 4; }  
-        .w-40  { grid-column: span 5; }  
-        .w-50  { grid-column: span 6; }
-        .w-60  { grid-column: span 7; }  
-        .w-70  { grid-column: span 10; } 
+        .w-20 { grid-column: span 3; }  
+        .w-30 { grid-column: span 4; }  
+        .w-50 { grid-column: span 6; }
+        .w-70 { grid-column: span 9; } 
         .w-100 { grid-column: span 12; } 
-
         label { font-size: 11px; font-weight: 700; color: #4a5568; margin-bottom: 6px; text-transform: uppercase; }
         input, select, textarea { padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 15px; color: #2d3748; height: 46px; width: 100%; outline: none; }
-        textarea { height: 80px; resize: none; }
-        select[multiple] { height: 120px; font-size: 13px; }
-        input:focus, select:focus, textarea:focus { border-color: #3182ce; }
-        input:read-only { background-color: #fffaf0; color: #ff4757; font-weight: bold; border-color: #ff4757; cursor: not-allowed; }
+        input:focus { border-color: #3182ce; }
         .input-group { display: flex; gap: 8px; }
-        .btn-action { background-color: #4a5568; color: white; border: none; padding: 0 15px; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; height: 46px; white-space: nowrap; }
-        .btn-submit { width: 100%; color: white; border: none; padding: 14px; font-size: 14px; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 20px; height: 50px; }
-        .btn-grey { background-color: #4a5568; }
-        .btn-red { background-color: #dc3545; }
-        .btn-green { background-color: #28a745; }
-        .btn-warning { background-color: #ffc107; color: #333; }
-        .btn-info { background-color: #0dcaf0; color: white; }
-        .btn-blue { background-color: #0d6efd; }
-        
-        .sub-box { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 15px; grid-column: span 12; margin-top: 10px; }
-        .table-app { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-        .table-app th, .table-app td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
-        .table-app th { background-color: #1a1e21; color: white; }
-        
-        .search-results { background: #fff; border: 2px solid #e2e8f0; border-radius: 6px; max-height: 200px; overflow-y: auto; margin-top: 5px; display: none; position: absolute; top: 65px; width: 100%; z-index: 10; }
+        .btn-action { background-color: #4a5568; color: white; border: none; padding: 0 15px; font-weight: 700; border-radius: 6px; cursor: pointer; height: 46px; }
+        .btn-submit { width: 100%; background-color: #1a1e21; color: white; border: none; padding: 14px; font-size: 14px; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 20px; height: 50px; }
+        .search-results { background: #fff; border: 2px solid #e2e8f0; border-radius: 6px; max-height: 200px; overflow-y: auto; display: none; position: absolute; top: 65px; width: 100%; z-index: 10; }
         .search-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #edf2f7; }
         .search-item:hover { background-color: #ebf8ff; }
-
-        @media (max-width: 850px) { .w-15, .w-20, .w-30, .w-33, .w-40, .w-50, .w-60 { grid-column: span 6; } }
-        @media (max-width: 550px) { .w-15, .w-20, .w-30, .w-33, .w-40, .w-50, .w-60 { grid-column: span 12; } }
-
-        /* Estilos ocultos para el Machote de Impresión PDF */
-        #machote-pdf { display: none; background: white; color: black; padding: 40px; font-size: 14px; }
-        .invoice-header { display: flex; justify-content: space-between; border-bottom: 3px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-        .invoice-body { margin-bottom: 40px; display: flex; justify-content: space-between; }
-        .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        .invoice-table th { background: #f1f5f9; font-weight: bold; border-bottom: 2px solid #333; padding: 12px; text-align: left; }
-        .invoice-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
-        .invoice-totals { width: 40%; margin-left: auto; border-top: 2px solid #333; padding-top: 10px; }
-        .invoice-totals div { display: flex; justify-content: space-between; padding: 6px 0; }
+        #machote-pdf { display: none; background: white; color: black; padding: 40px; }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <button id="btnTabClientes" class="active" onclick="cambiarPestana('clientes')">CLIENTES</button>
-        <button id="btnTabCalendario" onclick="cambiarPestana('calendario')">CALENDARIO</button>
-        <button id="btnTabCebaderos" onclick="cambiarPestana('cebaderos')">CEBADEROS</button>
-        <button id="btnTabVisitas" onclick="cambiarPestana('visitas')">VISITAS</button>
-        <button id="btnTabFactura" onclick="cambiarPestana('factura')">FACTURA</button>
+        <button id="btnTabClientes" class="active" onclick="cambiarPestana('clientes')">REGISTRO CLIENTES</button>
+        <button id="btnTabFactura" onclick="cambiarPestana('factura')">FACTURACIÓN</button>
         <button id="btnTabConsulta" onclick="cambiarPestana('consulta')">CONSULTA</button>
     </nav>
 
     <div class="container">
-        
+        <!-- MODULO: REGISTRO CLIENTES -->
         <div id="pantallaClientes" class="tab-content active">
-            <div class="section-header">
-                <div class="line-indicator bg-grey"></div>
-                <h2>MAESTRO DE CLIENTES</h2>
-            </div>
+            <div class="section-header"><div class="line-indicator"></div><h2>Maestro de Clientes</h2></div>
             <form id="clientForm">
                 <div class="form-grid">
-                    <div class="col w-20"><label>CONSECUTIVO</label><input type="text" id="c_con" readonly></div>
-                    <div class="col w-70"><label>NOMBRE COMPLETO</label><input type="text" id="c_nom" required autocomplete="off"></div>
-                    <div class="col w-30"><label>ID (CÉDULA)</label><input type="text" id="c_id" required autocomplete="off"></div>
-                    <div class="col w-33"><label>SUCURSAL</label><input type="text" id="c_suc" autocomplete="off"></div>
-                    <div class="col w-33"><label>TELÉFONO</label><input type="tel" id="c_tel" autocomplete="off"></div>
-                    <div class="col w-33"><label>EMAIL</label><input type="email" id="c_mail" autocomplete="off"></div>
-                    <div class="col w-20"><label>LOCALIZAR</label><input type="text" id="c_loc" autocomplete="off"></div>
-                    <div class="col w-40"><label>DIRECCIÓN</label><input type="text" id="c_dir" autocomplete="off"></div>
-                    <div class="col w-40"><label>GPS</label>
+                    <div class="col w-20"><label>Consecutivo</label><input type="text" id="c_con" readonly></div>
+                    <div class="col w-70"><label>Nombre Completo</label><input type="text" id="c_nom" required></div>
+                    <div class="col w-30"><label>Cédula</label><input type="text" id="c_id" required></div>
+                    <div class="col w-30"><label>Sucursal</label><input type="text" id="c_suc"></div>
+                    <div class="col w-30"><label>Teléfono</label><input type="tel" id="c_tel"></div>
+                    <div class="col w-50"><label>Email</label><input type="email" id="c_mail"></div>
+                    <div class="col w-50"><label>Localizar</label><input type="text" id="c_loc"></div>
+                    <div class="col w-100"><label>Dirección</label><input type="text" id="c_dir"></div>
+                    <div class="col w-50"><label>Coordenadas GPS</label>
                         <div class="input-group">
-                            <input type="text" id="c_gps" placeholder="Lat, Lon" autocomplete="off">
-                            <button type="button" class="btn-action" onclick="obtenerUbicacionActual('c_gps')">📍 GPS</button>
+                            <input type="text" id="c_gps" placeholder="Lat, Lon">
+                            <button type="button" class="btn-action" onclick="obtenerUbicacion('c_gps')">📍 GPS</button>
                         </div>
                     </div>
-                    <div class="col w-33"><label>FECHA REGISTRO</label><input type="date" id="c_freg"></div>
+                    <div class="col w-50"><label>Fecha Registro</label><input type="date" id="c_freg"></div>
                 </div>
-                <button type="submit" class="btn-submit btn-grey">GUARDAR CLIENTE</button>
+                <button type="submit" class="btn-submit">Guardar Cliente</button>
             </form>
         </div>
 
-        <div id="pantallaCalendario" class="tab-content">
-            <div class="section-header">
-                <div class="line-indicator bg-red"></div>
-                <h2>AGENDAR CITA EN GOOGLE CALENDAR</h2>
-            </div>
-            <form id="calendarForm">
-                <div class="form-grid">
-                    <div class="col w-60"><label>SELECCIONAR CLIENTE</label><select id="cal_nom" class="select-clientes" onchange="autoFillCal()" required></select></div>
-                    <div class="col w-40"><label>SUCURSAL</label><input type="text" id="cal_suc"></div>
-                    <div class="col w-33"><label>FECHA DE CITA</label><input type="date" id="cal_fec" required></div>
-                    <div class="col w-33"><label>HORA DE INICIO</label><input type="time" id="cal_hor" required></div>
-                    <div class="col w-33"><label>DURACIÓN (HORAS)</label><input type="number" id="cal_dur" value="1"></div>
-                    <div class="col w-100"><label>DIRECCIÓN (UBICACIÓN EN MAPA)</label><input type="text" id="cal_dir" readonly></div>
-                    <div class="col w-50"><label>TIPO DE SERVICIO</label><select id="cal_tip"><option>Fumigación General</option><option>Control de Roedores</option><option>Inspección técnica</option><option>Refuerzo</option></select></div>
-                    <div class="col w-50"><label>NOTAS ADICIONALES</label><input type="text" id="cal_not"></div>
-                </div>
-                <button type="submit" class="btn-submit btn-red">SINCRONIZAR CON GOOGLE CALENDAR</button>
-            </form>
-        </div>
-
-        <div id="pantallaCebaderos" class="tab-content">
-            <div class="section-header">
-                <div class="line-indicator bg-green"></div>
-                <h2>CONTROL DE CEBADEROS</h2>
-            </div>
-            <form id="cebaderosForm">
-                <div class="form-grid">
-                    <div class="col w-20"><label>CONSECUTIVO</label><input type="text" id="ceb_con" readonly></div>
-                    <div class="col w-60"><label>NOMBRE CLIENTE</label><select id="ceb_nom" class="select-clientes" onchange="autoFillCeb()" required></select></div>
-                    <div class="col w-40"><label>SUCURSAL</label><input type="text" id="ceb_suc"></div>
-                    <div class="col w-40"><label>FECHA</label><input type="date" id="ceb_fec" required></div>
-                    <div class="col w-40"><label>HORA</label><input type="time" id="ceb_hor" required></div>
-                    <div class="col w-40"><label>TIPO</label><select id="ceb_tip"><option>Control de Plagas</option><option>Refuerzo</option></select></div>
-                    <div class="col w-100"><label>TÉCNICO ASIGNADO</label><input type="text" id="ceb_tec" required></div>
-                    
-                    <div class="sub-box">
-                        <div class="form-grid">
-                            <div class="col w-20"><label>Estación #</label><input type="text" id="i_est"></div>
-                            <div class="col w-50"><label>Producto Utilizado</label><select id="i_pro"><option>(Rodenticida-Broditop-Brodifacoum-20-30g / m)</option><option>(Rodenticida-Gardentop-Bromadiolona-20-30g / m)</option><option>(Rodenticida-Storm-Coumarin Flocoumafen-20-30g / m)</option></select></div>
-                            <div class="col w-50"><label>Incidencia</label><select id="i_inc"><option>Limpieza-Cambio Cebo</option><option>Inactiva</option><option>Activa</option></select></div>
-                            <div class="col w-100"><button type="button" class="btn-submit btn-green" style="margin-top:5px; height:40px;" onclick="addEstacion()">AÑADIR ESTACIÓN</button></div>
-                        </div>
-                        <table class="table-app"><thead><tr><th>Est.</th><th>Producto</th><th>Incidencia</th><th>X</th></tr></thead><tbody id="lista_estaciones"></tbody></table>
-                    </div>
-                </div>
-                <button type="submit" class="btn-submit btn-green">GUARDAR REPORTE</button>
-            </form>
-        </div>
-
-        <div id="pantallaVisitas" class="tab-content">
-            <div class="section-header">
-                <div class="line-indicator bg-warning"></div>
-                <h2>REGISTRO DE VISITAS</h2>
-            </div>
-            <form id="visitasForm">
-                <div class="form-grid">
-                    <div class="col w-20"><label>CONSECUTIVO</label><input type="text" id="v_con" readonly></div>
-                    <div class="col w-60"><label>CLIENTE</label><select id="v_nom" class="select-clientes" onchange="autoFillVis()" required></select></div>
-                    <div class="col w-40"><label>SUCURSAL</label><input type="text" id="v_suc"></div>
-                    <div class="col w-50"><label>FECHA VISITA</label><input type="date" id="v_fec" required></div>
-                    <div class="col w-50"><label>HORA VISITA</label><input type="time" id="v_hor" required></div>
-                    <div class="col w-50"><label>INSECTOS RASTREROS (Ctrl+Click)</label><select id="v_ras" multiple><option selected>NINGUNO</option><option>ARAÑAS</option><option>CHINCHES</option><option>C GERMÁNICA</option><option>HORMIGAS</option></select></div>
-                    <div class="col w-50"><label>INSECTOS VOLADORES (Ctrl+Click)</label><select id="v_vol" multiple><option selected>NINGUNO</option><option>MOSCAS</option><option>MOSQUITOS</option></select></div>
-                    <div class="col w-100"><label>MÉTODO APLICADO (Ctrl+Click)</label><select id="v_met" multiple required><option selected>Aspersión</option><option>Nebulización</option><option>Gel</option></select></div>
-                    <div class="col w-100"><label>COMENTARIO DE INSPECCIÓN</label><textarea id="v_com" rows="2"></textarea></div>
-                </div>
-                <button type="submit" class="btn-submit btn-warning">GUARDAR VISITA</button>
-            </form>
-        </div>
-
+        <!-- MODULO: FACTURACION -->
         <div id="pantallaFactura" class="tab-content">
-            <div class="section-header">
-                <div class="line-indicator bg-info"></div>
-                <h2>FACTURACIÓN</h2>
-            </div>
+            <div class="section-header"><div class="line-indicator"></div><h2>Generar Factura</h2></div>
             <form id="facturaForm">
                 <div class="form-grid">
-                    <div class="col w-30"><label>FACTURA #</label><input type="text" id="f_con" readonly></div>
-                    <div class="col w-60"><label>CLIENTE</label><select id="f_nom" class="select-clientes" onchange="autoFillFact()" required></select></div>
-                    <div class="col w-30"><label>ID (CÉDULA)</label><input type="text" id="f_id" readonly style="background:#f8f9fa; border-color:#cbd5e1; color:#333;"></div>
-                    
-                    <div class="col w-20"><label>CANTIDAD</label><input type="number" id="f_can" value="1" oninput="calcTotal()" required></div>
-                    <div class="col w-50"><label>DESCRIPCIÓN</label><input type="text" id="f_des" placeholder="Ej. Servicio de Fumigación" required autocomplete="off"></div>
-                    <div class="col w-30"><label>PRECIO UNITARIO</label><input type="number" id="f_pre" placeholder="0.00" oninput="calcTotal()" required></div>
-                    
-                    <div class="col w-20"><label>IVA (13%)</label><input type="text" id="f_iva" readonly style="background:#f8f9fa; border-color:#cbd5e1; color:#333;"></div>
-                    <div class="col w-40"><label style="color:#0d6efd;">TOTAL NETO</label><input type="text" id="f_tot" readonly style="background:#eef2ff; border-color:#0d6efd; color:#0d6efd;"></div>
+                    <div class="col w-30"><label>Factura #</label><input type="text" id="f_con" readonly></div>
+                    <div class="col w-70"><label>Cliente</label><select id="f_nom" class="select-clientes" onchange="autoFillFact()" required></select></div>
+                    <div class="col w-30"><label>Cédula</label><input type="text" id="f_id" readonly></div>
+                    <div class="col w-20"><label>Cantidad</label><input type="number" id="f_can" value="1" oninput="calcTotal()" required></div>
+                    <div class="col w-70"><label>Descripción del servicio</label><input type="text" id="f_des" required></div>
+                    <div class="col w-30"><label>Precio Unitario</label><input type="number" id="f_pre" oninput="calcTotal()" required></div>
+                    <div class="col w-30"><label>IVA (13%)</label><input type="text" id="f_iva" readonly></div>
+                    <div class="col w-60"><label>Total Neto</label><input type="text" id="f_tot" readonly style="font-weight: bold; color: #0d6efd;"></div>
                 </div>
-                <button type="submit" class="btn-submit btn-info">REGISTRAR Y GENERAR FACTURA</button>
+                <button type="submit" class="btn-submit">Procesar y Descargar PDF</button>
             </form>
         </div>
 
+        <!-- MODULO: CONSULTA -->
         <div id="pantallaConsulta" class="tab-content">
-            <div class="section-header">
-                <div class="line-indicator bg-blue"></div>
-                <h2>CONSULTA DE CLIENTES</h2>
-            </div>
-            <div class="col w-100" style="margin-bottom: 25px;">
-                <label>BUSCAR POR NOMBRE</label>
-                <input type="text" id="inputBuscador" placeholder="Escribe para buscar..." onkeyup="filtrarClientes()" autocomplete="off">
+            <div class="section-header"><div class="line-indicator"></div><h2>Buscador de Clientes</h2></div>
+            <div class="col w-100">
+                <label>Escribe el nombre del cliente</label>
+                <input type="text" id="inputBuscador" placeholder="Buscar..." onkeyup="filtrarClientes()">
                 <div id="resultadosBusqueda" class="search-results"></div>
             </div>
         </div>
-
     </div>
 
+    <!-- Machote PDF oculto -->
     <div id="machote-pdf">
-        <div class="invoice-header">
-            <div>
-                <h1 style="font-size: 26px; font-weight: 800; letter-spacing: -1px;">TECNOPLAGAS PRO</h1>
-                <p style="font-size: 12px; color: #666; margin-top: 5px;">Control Profesional de Plagas y Sanitización</p>
-            </div>
-            <div style="text-align: right;">
-                <h2 style="font-size: 16px; color: #e53e3e;" id="m_con">FAC-0000</h2>
-                <p style="font-size: 12px; color: #666; margin-top: 5px;" id="m_fec">Fecha: --/--/----</p>
-            </div>
-        </div>
-        
-        <div class="invoice-body">
-            <div>
-                <h3 style="font-size: 12px; text-transform: uppercase; color: #718096; margin-bottom: 5px;">Facturado a:</h3>
-                <p style="font-weight: bold; font-size: 16px;" id="m_nom">Nombre del Cliente</p>
-                <p style="font-size: 13px; color: #4a5568; margin-top: 3px;" id="m_id">Cédula: ---</p>
-            </div>
-            <div style="text-align: right; font-size: 12px; color: #718096;">
-                <p>TecnoPlagas S.A.</p>
-                <p>Contacto: soporte@tecnoplagas.com</p>
-                <p>Costa Rica</p>
-            </div>
-        </div>
-
-        <table class="invoice-table">
-            <thead>
-                <tr>
-                    <th style="width: 10%;">Cant.</th>
-                    <th style="width: 60%;">Descripción del Servicio</th>
-                    <th style="width: 30%; text-align: right;">Precio Unitario</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="m_can">0</td>
-                    <td id="m_des">--</td>
-                    <td id="m_pre" style="text-align: right;">₡0.00</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="invoice-totals">
-            <div>
-                <span>Subtotal:</span>
-                <span id="m_sub">₡0.00</span>
-            </div>
-            <div>
-                <span>IVA (13%):</span>
-                <span id="m_iva">₡0.00</span>
-            </div>
-            <div style="font-weight: bold; font-size: 16px; border-top: 1px dashed #333; padding-top: 8px; margin-top: 5px;">
-                <span>Total Neto:</span>
-                <span id="m_tot">₡0.00</span>
-            </div>
-        </div>
-        
-        <div style="margin-top: 100px; text-align: center; font-size: 11px; color: #a0aec0; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-            Gracias por confiar en los servicios profesionales de TecnoPlagas.
-        </div>
+        <h1 id="m_title">DOCUMENTO DE FACTURACIÓN</h1>
+        <p id="m_con"></p>
+        <p id="m_nom"></p>
+        <p id="m_det"></p>
+        <h3 id="m_tot"></h3>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2vfiyh51puq8CNcSxadj_VcGaBitMmRsyV_p7Juyh2qabdWrLjNR3WFEnNYsbvzWk/exec";
+        // REEMPLAZA ESTA URL CON TU LINK GENERADO POR GOOGLE APPS SCRIPT
+        const SCRIPT_URL = "TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUÍ";
         
-        let dbClientes = []; 
-        let estTemp = [];
-        let cnt = JSON.parse(localStorage.getItem('tp_cnt_v25.3')) || { c:1, ceb:1, v:1, f:1 };
+        let dbClientes = [];
+        let cnt = JSON.parse(localStorage.getItem('tp_cnt_v26')) || { c:1, f:1 };
 
+        // Registro de Service Worker para PWA
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.error('PWA Error', err));
-            });
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
         }
 
-        async function loadData() {
+        async function cargarBaseDatos() {
             try {
                 const r = await fetch(SCRIPT_URL);
-                const response = await r.json();
-                dbClientes = response.clientes || [];
-                
-                document.querySelectorAll('.select-clientes').forEach(s => {
-                    s.innerHTML = '<option value="">-- Seleccionar --</option>' + 
-                                  dbClientes.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
-                });
-            } catch(e) { console.log("Error de red al cargar base de datos."); }
+                const res = await r.json();
+                if(res.status === "success") {
+                    dbClientes = res.clientes;
+                    actualizarDesplegables();
+                }
+            } catch(e) { console.error("Error cargando base de datos remota."); }
+        }
+
+        function actualizarDesplegables() {
+            const select = document.getElementById('f_nom');
+            select.innerHTML = '<option value="">-- Seleccione Cliente --</option>' + 
+                               dbClientes.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
         }
 
         function cambiarPestana(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.navbar button').forEach(l => l.classList.remove('active'));
+            document.querySelectorAll('.navbar button').forEach(b => b.classList.remove('active'));
             
             if(id === 'clientes') { document.getElementById('pantallaClientes').classList.add('active'); document.getElementById('btnTabClientes').classList.add('active'); }
-            if(id === 'calendario') { document.getElementById('pantallaCalendario').classList.add('active'); document.getElementById('btnTabCalendario').classList.add('active'); }
-            if(id === 'cebaderos') { document.getElementById('pantallaCebaderos').classList.add('active'); document.getElementById('btnTabCebaderos').classList.add('active'); }
-            if(id === 'visitas') { document.getElementById('pantallaVisitas').classList.add('active'); document.getElementById('btnTabVisitas').classList.add('active'); }
             if(id === 'factura') { document.getElementById('pantallaFactura').classList.add('active'); document.getElementById('btnTabFactura').classList.add('active'); }
             if(id === 'consulta') { document.getElementById('pantallaConsulta').classList.add('active'); document.getElementById('btnTabConsulta').classList.add('active'); }
-            
-            updateCons();
+            actualizarConsecutivos();
         }
 
-        function updateCons() {
+        function actualizarConsecutivos() {
             document.getElementById('c_con').value = "CL-" + String(cnt.c).padStart(4,'0');
-            document.getElementById('ceb_con').value = "CEB-" + String(cnt.ceb).padStart(4,'0');
-            document.getElementById('v_con').value = "VIS-" + String(cnt.v).padStart(4,'0');
             document.getElementById('f_con').value = "FAC-" + String(cnt.f).padStart(4,'0');
         }
 
-        function obtenerUbicacionActual(idDestino) {
-            const inputGps = document.getElementById(idDestino);
-            if (!navigator.geolocation) { return alert("GPS no soportado."); }
-            inputGps.value = "Localizando...";
-            navigator.geolocation.getCurrentPosition(
-                (pos) => { inputGps.value = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`; },
-                () => { inputGps.value = ""; alert("Active el GPS en su tablet."); },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
+        function obtenerUbicacion(id) {
+            if(!navigator.geolocation) return alert("GPS no disponible.");
+            navigator.geolocation.getCurrentPosition(p => {
+                document.getElementById(id).value = p.coords.latitude.toFixed(6) + ", " + p.coords.longitude.toFixed(6);
+            }, () => alert("Encienda el GPS de la tablet."));
         }
 
-        function autoFillCal() {
-            const c = dbClientes.find(x => x.nombre === document.getElementById('cal_nom').value);
-            if(c) { document.getElementById('cal_dir').value = c.direccion || ''; document.getElementById('cal_suc').value = c.sucursal || ''; }
-        }
-        function autoFillCeb() {
-            const c = dbClientes.find(x => x.nombre === document.getElementById('ceb_nom').value);
-            if(c) { document.getElementById('ceb_suc').value = c.sucursal || ''; }
-        }
-        function autoFillVis() {
-            const c = dbClientes.find(x => x.nombre === document.getElementById('v_nom').value);
-            if(c) { document.getElementById('v_suc').value = c.sucursal || ''; }
-        }
         function autoFillFact() {
-            const c = dbClientes.find(x => x.nombre === document.getElementById('f_nom').value);
-            if(c) { document.getElementById('f_id').value = c.cedula || ''; }
-        }
-
-        function addEstacion() {
-            const n = document.getElementById('i_est').value;
-            if(!n) return alert("Indique el número de estación");
-            estTemp.push({ num: n, pro: document.getElementById('i_pro').value, inc: document.getElementById('i_inc').value });
-            renderEstaciones();
-            document.getElementById('i_est').value = "";
-        }
-        function eliminarEstacion(index) {
-            estTemp.splice(index, 1);
-            renderEstaciones();
-        }
-        function renderEstaciones() {
-            document.getElementById('lista_estaciones').innerHTML = estTemp.map((e,i) => 
-                `<tr><td>${e.num}</td><td>${e.pro}</td><td>${e.inc}</td><td><button type="button" class="btn-action" style="background:#dc3545; height:30px; padding:0 10px;" onclick="eliminarEstacion(${i})">X</button></td></tr>`
-            ).join('');
+            const client = dbClientes.find(x => x.nombre === document.getElementById('f_nom').value);
+            if(client) document.getElementById('f_id').value = client.cedula;
         }
 
         function calcTotal() {
@@ -391,141 +182,80 @@
             const query = document.getElementById('inputBuscador').value.toLowerCase();
             const res = document.getElementById('resultadosBusqueda');
             res.innerHTML = "";
-            if (!query.trim()) { res.style.display = "none"; return; }
-
+            if(!query.trim()) { res.style.display = "none"; return; }
+            
             dbClientes.forEach(c => {
-                if ((c.nombre || "").toLowerCase().includes(query)) {
-                    const item = document.createElement('div');
-                    item.className = 'search-item';
-                    item.innerText = c.nombre;
-                    item.onclick = () => { document.getElementById('inputBuscador').value = c.nombre; res.style.display = "none"; };
-                    res.appendChild(item);
+                if(c.nombre.toLowerCase().includes(query)) {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.innerText = c.nombre + " (" + c.cedula + ")";
+                    div.onclick = () => { document.getElementById('inputBuscador').value = c.nombre; res.style.display="none"; };
+                    res.appendChild(div);
                 }
             });
             res.style.display = "block";
         }
 
-        // CORRECCIÓN RADICAL: FUNCIÓN ASÍNCRONA ESTABLECIDA CORRECTAMENTE
-        async function ejecutarEnvio(pestana, datos, tipoContador) {
+        async function enviarFormulario(pestana, datos, campoContador) {
             try {
-                await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
+                // Forzamos modo cors mediante solicitudes tradicionales limpias si el API remoto lo requiere
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
                     body: JSON.stringify({ pestana: pestana, datos: datos })
                 });
-                if(tipoContador) {
-                    cnt[tipoContador]++;
-                    localStorage.setItem('tp_cnt_v25.3', JSON.stringify(cnt));
+                if(campoContador) {
+                    cnt[campoContador]++;
+                    localStorage.setItem('tp_cnt_v26', JSON.stringify(cnt));
                 }
                 return true;
-            } catch(e) { 
-                alert("Error de red al sincronizar."); 
+            } catch(e) {
+                alert("Error crítico de conexión.");
                 return false;
             }
         }
 
-        function imprimirMachotePDF(f) {
-            document.getElementById('m_con').innerText = f.f_con;
-            document.getElementById('m_fec').innerText = "Fecha: " + new Date().toLocaleDateString('es-CR');
-            document.getElementById('m_nom').innerText = f.f_nom;
-            document.getElementById('m_id').innerText = "ID Cédula: " + f.f_id;
-            document.getElementById('m_can').innerText = f.f_can;
-            document.getElementById('m_des').innerText = f.f_des;
-            
-            const precioNum = parseFloat(f.f_pre) || 0;
-            const subNum = precioNum * (parseInt(f.f_can) || 1);
-            
-            document.getElementById('m_pre').innerText = "₡" + precioNum.toFixed(2);
-            document.getElementById('m_sub').innerText = "₡" + subNum.toFixed(2);
-            document.getElementById('m_iva').innerText = "₡" + (parseFloat(f.f_iva) || 0).toFixed(2);
-            document.getElementById('m_tot').innerText = "₡" + (parseFloat(f.f_tot) || 0).toFixed(2);
-
-            const elemento = document.getElementById('machote-pdf');
-            elemento.style.display = 'block';
-
-            const opciones = {
-                margin:       15,
-                filename:     f.f_con + '_' + f.f_nom.replace(/ /g, '_') + '.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, logging: false },
-                jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' }
-            };
-
-            html2pdf().from(elemento).set(opciones).save().then(() => {
-                elemento.style.display = 'none';
-                alert("¡Registro exitoso en Sheets y Factura PDF generada!");
-                location.reload();
-            });
-        }
-
-        document.getElementById('clientForm').addEventListener('submit', async function(e) {
+        document.getElementById('clientForm').addEventListener('submit', async function(e){
             e.preventDefault();
-            const exito = await ejecutarEnvio('Clientes', {
+            const datos = {
                 c_con: document.getElementById('c_con').value, c_nom: document.getElementById('c_nom').value,
                 c_id: document.getElementById('c_id').value, c_suc: document.getElementById('c_suc').value,
                 c_tel: document.getElementById('c_tel').value, c_mail: document.getElementById('c_mail').value,
                 c_loc: document.getElementById('c_loc').value, c_dir: document.getElementById('c_dir').value,
                 c_gps: document.getElementById('c_gps').value, c_freg: document.getElementById('c_freg').value
-            }, 'c');
-            if(exito) { alert("¡Cliente guardado exitosamente!"); location.reload(); }
+            };
+            const listo = await enviarFormulario('Clientes', datos, 'c');
+            if(listo) { alert("¡Cliente sincronizado con éxito!"); location.reload(); }
         });
 
-        document.getElementById('calendarForm').addEventListener('submit', async function(e) {
+        document.getElementById('facturaForm').addEventListener('submit', async function(e){
             e.preventDefault();
-            await ejecutarEnvio('Calendario', {
-                cal_nom: document.getElementById('cal_nom').value, cal_suc: document.getElementById('cal_suc').value,
-                cal_fec: document.getElementById('cal_fec').value, cal_hor: document.getElementById('cal_hor').value,
-                cal_dur: document.getElementById('cal_dur').value, cal_dir: document.getElementById('cal_dir').value,
-                cal_tip: document.getElementById('cal_tip').value, cal_not: document.getElementById('cal_not').value
-            }, null);
-            alert("¡Cita Sincronizada con Google Calendar!"); 
-            location.reload();
-        });
-
-        document.getElementById('cebaderosForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            if(!estTemp.length) return alert("Añada al menos una estación.");
-            const exito = await ejecutarEnvio('Cebaderos', {
-                ceb_con: document.getElementById('ceb_con').value, ceb_nom: document.getElementById('ceb_nom').value,
-                ceb_suc: document.getElementById('ceb_suc').value, ceb_fec: document.getElementById('ceb_fec').value,
-                ceb_hor: document.getElementById('ceb_hor').value, ceb_tip: document.getElementById('ceb_tip').value,
-                ceb_tec: document.getElementById('ceb_tec').value, estaciones: JSON.stringify(estTemp)
-            }, 'ceb');
-            if(exito) { alert("¡Reporte de Cebaderos guardado!"); location.reload(); }
-        });
-
-        document.getElementById('visitasForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const exito = await ejecutarEnvio('Visitas', {
-                v_con: document.getElementById('v_con').value, v_nom: document.getElementById('v_nom').value,
-                v_suc: document.getElementById('v_suc').value, v_fec: document.getElementById('v_fec').value,
-                v_hor: document.getElementById('v_hor').value,
-                v_ras: Array.from(document.getElementById('v_ras').selectedOptions).map(o => o.value).join(", "),
-                v_vol: Array.from(document.getElementById('v_vol').selectedOptions).map(o => o.value).join(", "),
-                v_met: Array.from(document.getElementById('v_met').selectedOptions).map(o => o.value).join(", "),
-                v_com: document.getElementById('v_com').value
-            }, 'v');
-            if(exito) { alert("¡Visita registrada!"); location.reload(); }
-        });
-
-        document.getElementById('facturaForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const facturaDatos = {
+            const datos = {
                 f_con: document.getElementById('f_con').value, f_nom: document.getElementById('f_nom').value,
                 f_id: document.getElementById('f_id').value, f_can: document.getElementById('f_can').value,
                 f_des: document.getElementById('f_des').value, f_pre: document.getElementById('f_pre').value,
                 f_iva: document.getElementById('f_iva').value, f_tot: document.getElementById('f_tot').value
             };
-            
-            const exito = await ejecutarEnvio('Facturacion', facturaDatos, 'f');
-            if(exito) {
-                imprimirMachotePDF(facturaDatos);
+            const listo = await enviarFormulario('Facturacion', datos, 'f');
+            if(listo) {
+                document.getElementById('m_con').innerText = "Código: " + datos.f_con;
+                document.getElementById('m_nom').innerText = "Señor(a): " + datos.f_nom;
+                document.getElementById('m_det').innerText = datos.f_can + "x " + datos.f_des;
+                document.getElementById('m_tot').innerText = "Total Pagado: ₡" + datos.f_tot;
+                
+                const element = document.getElementById('machote-pdf');
+                element.style.display = 'block';
+                html2pdf().from(element).save().then(() => {
+                    element.style.display = 'none';
+                    alert("Factura generada y guardada.");
+                    location.reload();
+                });
             }
         });
 
-        window.onload = () => { 
-            loadData(); 
-            updateCons(); 
+        window.onload = () => {
+            cargarBaseDatos();
+            actualizarConsecutivos();
             document.getElementById('c_freg').value = new Date().toISOString().split('T')[0];
         };
     </script>
