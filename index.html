@@ -98,7 +98,7 @@
         .col {
             display: flex;
             flex-direction: column;
-            position: relative; /* Añadido para contener correctamente los dropdowns absolutos */
+            position: relative;
         }
         .w-20  { grid-column: span 3; }  
         .w-30  { grid-column: span 4; }  
@@ -314,7 +314,10 @@
             </div>
             <div class="col w-100" style="margin-bottom: 25px;">
                 <label>BUSCAR POR NOMBRE O CÉDULA</label>
-                <input type="text" id="inputBuscador" placeholder="Escribe para buscar..." onkeyup="filtrarClientes()" autocomplete="off">
+                <div class="input-group">
+                    <input type="text" id="inputBuscador" placeholder="Escribe el nombre o cédula..." autocomplete="off">
+                    <button type="button" class="btn-action" onclick="filtrarClientes()">🔍 BUSCAR</button>
+                </div>
                 <div id="resultadosBusqueda" class="search-results"></div>
             </div>
 
@@ -375,9 +378,16 @@
             });
         }
 
-        // Delay estratégico para no trabar renderizado de interfaz en tabletas antiguas
+        // Retardo para fluidez visual en tabletas antiguas
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(obtenerBaseClientesSilencioso, 800);
+        });
+
+        // Evento complementario: Capturar la tecla Enter en la tablet
+        document.getElementById('inputBuscador').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filtrarClientes();
+            }
         });
 
         // CAPTURA HARDWARE GPS NATIVO
@@ -461,14 +471,17 @@
         }
 
         function filtrarClientes() {
-            const query = document.getElementById('inputBuscador').value.toLowerCase();
+            const query = document.getElementById('inputBuscador').value.toLowerCase().trim();
             const contenedorResultados = document.getElementById('resultadosBusqueda');
             contenedorResultados.innerHTML = "";
 
-            if (query.trim() === "") {
+            if (query === "") {
                 contenedorResultados.style.display = "none";
+                alert("Por favor, ingresa un término para buscar.");
                 return;
             }
+
+            let coincidencias = 0;
 
             listaGlobalClientes.forEach((cliente, index) => {
                 if ((cliente.nombre || "").toLowerCase().includes(query) || (cliente.cedula || "").toLowerCase().includes(query)) {
@@ -477,9 +490,16 @@
                     item.innerText = `${cliente.consecutivo} - ${cliente.nombre}`;
                     item.onclick = () => verDetalleCliente(index);
                     contenedorResultados.appendChild(item);
+                    coincidencias++;
                 }
             });
-            contenedorResultados.style.display = "block";
+
+            if (coincidencias > 0) {
+                contenedorResultados.style.display = "block";
+            } else {
+                contenedorResultados.style.display = "none";
+                alert("No se encontraron clientes con esos datos.");
+            }
         }
 
         function verDetalleCliente(index) {
@@ -499,7 +519,7 @@
             document.getElementById('editClientForm').style.display = "block";
         }
 
-        // GUARDAR NUEVO CLIENTE (Corrección de CORS y control de respuestas erróneas)
+        // GUARDAR NUEVO CLIENTE
         document.getElementById('clientForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnGuardarCliente');
@@ -532,7 +552,7 @@
                 obtenerBaseClientesSilencioso();
             })
             .catch(err => {
-                alert('Fallo de conexión. Revisa si el registro se aplicó en tu Sheet.');
+                alert('Fallo de conexión al enviar. Valida tu red.');
                 console.error(err);
             })
             .finally(() => {
@@ -541,7 +561,7 @@
             });
         });
 
-        // ACTUALIZAR EXISTENTE (Corrección de CORS y manejo estructurado)
+        // ACTUALIZAR EXISTENTE
         document.getElementById('editClientForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnActualizarCliente');
@@ -582,7 +602,7 @@
             });
         });
 
-        // AGENDAR CITA EN GOOGLE CALENDAR (Lógica añadida para dar soporte al formulario del Calendario)
+        // AGENDAR CITA EN GOOGLE CALENDAR
         document.getElementById('calendarForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSincronizar');
