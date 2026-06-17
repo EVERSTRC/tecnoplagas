@@ -1,32 +1,31 @@
-/**
- * ARCHIVO: sw.js (Service Worker)
- * Propósito: Forzar al navegador a omitir el almacenamiento persistente 
- * para garantizar la lectura de las respuestas directas de Google Sheets.
- */
+const CACHE_NAME = 'tecnoplagas-v1';
+const assets = ['index.html', 'manifest.json'];
 
-const NOMBRE_CACHE = 'tecnoplagas-pwa-v26';
-
-self.addEventListener('install', (event) => {
-  self.skipWaiting(); 
-});
-
-self.addEventListener('activate', (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.keys().then((listaCaches) => {
-      return Promise.all(
-        listaCaches.map((cache) => {
-          if (cache !== NOMBRE_CACHE) {
-            return caches.delete(cache);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(assets);
+    })
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  // Estrategia Network-Only: Bypass de caché para datos vivos de Google
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      );
+    })
+  );
+});
+
+self.addEventListener('fetch', event => {
+  if (event.request.url.includes('script.google.com')) {
+    return;
+  }
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    caches.match(event.request).then(cachedResponse => {
+      return cachedResponse || fetch(event.request);
+    })
   );
 });
