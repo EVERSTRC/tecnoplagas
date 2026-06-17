@@ -218,6 +218,7 @@
 
     <div class="container">
         
+        <!-- PESTAÑA: CLIENTES -->
         <div id="pantallaClientes" class="tab-content active">
             <div class="section-header">
                 <div class="line-indicator bg-green"></div>
@@ -269,6 +270,7 @@
             </form>
         </div>
 
+        <!-- PESTAÑA: CALENDARIO -->
         <div id="pantallaCalendario" class="tab-content">
             <div class="section-header">
                 <div class="line-indicator bg-red"></div>
@@ -307,6 +309,7 @@
             </form>
         </div>
 
+        <!-- PESTAÑA: CONSULTA (Barra Estabilizada con Botón Alineado) -->
         <div id="pantallaConsulta" class="tab-content">
             <div class="section-header">
                 <div class="line-indicator bg-blue"></div>
@@ -314,9 +317,9 @@
             </div>
             <div class="col w-100" style="margin-bottom: 25px;">
                 <label>BUSCAR POR NOMBRE O CÉDULA</label>
-                <div class="input-group">
-                    <input type="text" id="inputBuscador" placeholder="Escribe el nombre o cédula..." autocomplete="off">
-                    <button type="button" class="btn-action" onclick="filtrarClientes()">🔍 BUSCAR</button>
+                <div class="input-group" style="display: flex; gap: 8px; width: 100%;">
+                    <input type="text" id="inputBuscador" placeholder="Escribe el nombre o cédula..." autocomplete="off" style="flex: 1;">
+                    <button type="button" class="btn-action" onclick="filtrarClientes()" style="width: auto; padding: 0 20px;">🔍 BUSCAR</button>
                 </div>
                 <div id="resultadosBusqueda" class="search-results"></div>
             </div>
@@ -369,7 +372,7 @@
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby2vfiyh51puq8CNcSxadj_VcGaBitMmRsyV_p7Juyh2qabdWrLjNR3WFEnNYsbvzWk/exec";
         let listaGlobalClientes = [];
 
-        // Registro Automático del Motor PWA en la Tablet
+        // Registro del Motor PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
@@ -378,12 +381,11 @@
             });
         }
 
-        // Retardo para fluidez visual en tabletas antiguas
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(obtenerBaseClientesSilencioso, 800);
         });
 
-        // Evento complementario: Capturar la tecla Enter en la tablet
+        // Soporte nativo para ejecutar búsqueda al presionar "Enter" en teclados virtuales
         document.getElementById('inputBuscador').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 filtrarClientes();
