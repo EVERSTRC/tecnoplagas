@@ -98,6 +98,7 @@
         .col {
             display: flex;
             flex-direction: column;
+            position: relative; /* Añadido para contener correctamente los dropdowns absolutos */
         }
         .w-20  { grid-column: span 3; }  
         .w-30  { grid-column: span 4; }  
@@ -165,6 +166,8 @@
             background-color: #a0aec0 !important;
             cursor: not-allowed;
         }
+        
+        /* Ajustes UX Críticos para Buscador Flotante */
         .search-results {
             background: #fff;
             border: 2px solid #e2e8f0;
@@ -175,7 +178,10 @@
             display: none;
             position: absolute;
             width: 100%;
-            z-index: 10;
+            left: 0;
+            top: 100%;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .search-item {
             padding: 12px 15px;
@@ -207,7 +213,7 @@
     <nav class="navbar">
         <button id="btnTabClientes" class="active" onclick="cambiarPestana('clientes')">CLIENTES</button>
         <button id="btnTabCalendario" onclick="cambiarPestana('calendario')">CALENDARIO</button>
-        <button id="btnTab聯sulta" onclick="cambiarPestana('consulta')">CONSULTA</button>
+        <button id="btnTabConsulta" onclick="cambiarPestana('consulta')">CONSULTA</button>
     </nav>
 
     <div class="container">
@@ -306,7 +312,7 @@
                 <div class="line-indicator bg-blue"></div>
                 <h2>CONSULTA Y EDICIÓN DE CLIENTES</h2>
             </div>
-            <div class="col w-100" style="position: relative; margin-bottom: 25px;">
+            <div class="col w-100" style="margin-bottom: 25px;">
                 <label>BUSCAR POR NOMBRE O CÉDULA</label>
                 <input type="text" id="inputBuscador" placeholder="Escribe para buscar..." onkeyup="filtrarClientes()" autocomplete="off">
                 <div id="resultadosBusqueda" class="search-results"></div>
@@ -369,8 +375,9 @@
             });
         }
 
+        // Delay estratégico para no trabar renderizado de interfaz en tabletas antiguas
         window.addEventListener('DOMContentLoaded', () => {
-            obtenerBaseClientesSilencioso();
+            setTimeout(obtenerBaseClientesSilencioso, 800);
         });
 
         // CAPTURA HARDWARE GPS NATIVO
@@ -390,7 +397,7 @@
                 },
                 (error) => {
                     inputGps.value = "";
-                    alert("Error GPS: Verifica que estés abriendo el enlace HTTPS seguro de GitHub y que activaras la ubicación en la tablet.");
+                    alert("Error GPS: Verifica los permisos de ubicación de la tablet o que uses un entorno HTTPS seguro.");
                 }, 
                 opciones
             );
@@ -414,26 +421,34 @@
         }
 
         function obtenerBaseClientesSilencioso() {
-            fetch(WEB_APP_URL).then(res => res.json()).then(res => {
-                if(res.status === "success") listaGlobalClientes = res.clientes;
-            }).catch(err => console.error(err));
+            fetch(WEB_APP_URL)
+                .then(res => res.json())
+                .then(res => {
+                    if(res.status === "success") listaGlobalClientes = res.clientes;
+                })
+                .catch(err => console.error("Error cargando base interna:", err));
         }
 
         function cargarClientesDesdeSheets() {
             const select = document.getElementById('selectCliente');
             select.innerHTML = '<option value="">Cargando base de datos...</option>';
-            fetch(WEB_APP_URL).then(res => res.json()).then(res => {
-                if(res.status === "success") {
-                    listaGlobalClientes = res.clientes;
-                    select.innerHTML = '<option value="">-- Seleccionar --</option>';
-                    res.clientes.forEach((cli, index) => {
-                        let opt = document.createElement('option');
-                        opt.value = index;
-                        opt.innerText = `${cli.consecutivo} - ${cli.nombre}`;
-                        select.appendChild(opt);
-                    });
-                }
-            });
+            fetch(WEB_APP_URL)
+                .then(res => res.json())
+                .then(res => {
+                    if(res.status === "success") {
+                        listaGlobalClientes = res.clientes;
+                        select.innerHTML = '<option value="">-- Seleccionar --</option>';
+                        res.clientes.forEach((cli, index) => {
+                            let opt = document.createElement('option');
+                            opt.value = index;
+                            opt.innerText = `${cli.consecutivo} - ${cli.nombre}`;
+                            select.appendChild(opt);
+                        });
+                    }
+                })
+                .catch(err => {
+                    select.innerHTML = '<option value="">Error al cargar clientes</option>';
+                });
         }
 
         function autoCompletarCliente() {
@@ -484,7 +499,7 @@
             document.getElementById('editClientForm').style.display = "block";
         }
 
-        // GUARDAR NUEVO
+        // GUARDAR NUEVO CLIENTE (Corrección de CORS y control de respuestas erróneas)
         document.getElementById('clientForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnGuardarCliente');
@@ -505,17 +520,28 @@
                 fecha: new Date().toISOString().split('T')[0]
             };
 
-            fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) }).then(() => {
+            fetch(WEB_APP_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain' }, 
+                body: JSON.stringify(datos) 
+            })
+            .then(res => {
+                if(!res.ok) throw new Error("Error de red");
                 alert('¡Cliente registrado con éxito!');
                 document.getElementById('clientForm').reset();
                 obtenerBaseClientesSilencioso();
-            }).finally(() => {
+            })
+            .catch(err => {
+                alert('Fallo de conexión. Revisa si el registro se aplicó en tu Sheet.');
+                console.error(err);
+            })
+            .finally(() => {
                 btn.disabled = false;
                 btn.innerText = "GUARDAR CLIENTE";
             });
         });
 
-        // ACTUALIZAR EXISTENTE
+        // ACTUALIZAR EXISTENTE (Corrección de CORS y manejo estructurado)
         document.getElementById('editClientForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnActualizarCliente');
@@ -534,14 +560,65 @@
                 gps: document.getElementById('editGps').value
             };
 
-            fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datosModificados) }).then(() => {
+            fetch(WEB_APP_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain' }, 
+                body: JSON.stringify(datosModificados) 
+            })
+            .then(res => {
+                if(!res.ok) throw new Error("Error de red");
                 alert('¡Datos actualizados en Sheets!');
                 document.getElementById('editClientForm').style.display = "none";
                 document.getElementById('inputBuscador').value = "";
                 obtenerBaseClientesSilencioso();
-            }).finally(() => {
+            })
+            .catch(err => {
+                alert('Error al actualizar datos. Reintente.');
+                console.error(err);
+            })
+            .finally(() => {
                 btn.disabled = false;
                 btn.innerText = "ACTUALIZAR DATOS EN SHEETS";
+            });
+        });
+
+        // AGENDAR CITA EN GOOGLE CALENDAR (Lógica añadida para dar soporte al formulario del Calendario)
+        document.getElementById('calendarForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSincronizar');
+            btn.disabled = true;
+            btn.innerText = "SINCRONIZANDO...";
+
+            const select = document.getElementById('selectCliente');
+            const clienteNombre = select.options[select.selectedIndex].text;
+
+            const datosCita = {
+                accion: "agendar_cita",
+                cliente: clienteNombre,
+                sucursal: document.getElementById('calSucursal').value,
+                fecha: document.getElementById('calFecha').value,
+                hora: document.getElementById('calHora').value,
+                duracion: document.getElementById('calDuracion').value,
+                direccion: document.getElementById('calDireccion').value
+            };
+
+            fetch(WEB_APP_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain' }, 
+                body: JSON.stringify(datosCita) 
+            })
+            .then(res => {
+                if(!res.ok) throw new Error("Error de red");
+                alert('¡Cita sincronizada con Google Calendar exitosamente!');
+                document.getElementById('calendarForm').reset();
+            })
+            .catch(err => {
+                alert('Error al enviar cita a la agenda.');
+                console.error(err);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = "SINCRONIZAR CON GOOGLE CALENDAR";
             });
         });
     </script>
